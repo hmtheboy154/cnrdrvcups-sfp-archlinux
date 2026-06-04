@@ -18,7 +18,7 @@ url='https://www.canon-europe.com'
 license=('GPL2' 'MIT' 'custom')
 # parts of the code are GPL or MIT licensed, some parts have a custom license
 makedepends=('jbigkit' 'gzip' 'gtk2')
-depends=('gcc-libs' 'libxml2' 'libglade')
+depends=('gcc-libs' 'libxml2-legacy' 'libglade')
 optdepends=('libjpeg6-turbo: improves printing results for color i-SENSYS LBP devices'
                         'gtk2: for cnsetuputil2')
 
