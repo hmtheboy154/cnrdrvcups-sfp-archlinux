@@ -1,0 +1,2508 @@
+diff --git a/cnrdrvcups-sfp-5.00/StatusMonitor/configure.in b/cnrdrvcups-sfp-5.00/StatusMonitor/configure.in
+index db1f711..642f7d4 100644
+--- a/cnrdrvcups-sfp-5.00/StatusMonitor/configure.in
++++ b/cnrdrvcups-sfp-5.00/StatusMonitor/configure.in
+@@ -11,7 +11,7 @@ AM_PROG_CC_STDC
+ AC_HEADER_STDC
+ AM_PROG_LIBTOOL
+ 
+-pkg_modules="gtk+-2.0 >= 2.0.0"
++pkg_modules="gtk+-3.0 >= 3.0.0"
+ PKG_CHECK_MODULES(PACKAGE, [$pkg_modules])
+ AC_SUBST(PACKAGE_CFLAGS)
+ AC_SUBST(PACKAGE_LIBS)
+diff --git a/cnrdrvcups-sfp-5.00/StatusMonitor/src/Makefile.am b/cnrdrvcups-sfp-5.00/StatusMonitor/src/Makefile.am
+index 80252af..a8fb0e8 100644
+--- a/cnrdrvcups-sfp-5.00/StatusMonitor/src/Makefile.am
++++ b/cnrdrvcups-sfp-5.00/StatusMonitor/src/Makefile.am
+@@ -55,7 +55,7 @@ ncapstatusui2l_SOURCES = \
+ 
+ #ncapstatusui2l_LDADD = -lgtk-x11-2.0  -lxml2 -lcups ../../cngplp/cngplpmod/libcngplpmod.la
+ #captstatusui2l_LDADD = -lgtk-x11-2.0  -lxml2 -lcups ../cnsktmodule/libcnsktmodule.la -lcngplpmod  -lm -L../cngplpmod/
+-ncapstatusui2l_LDADD = -lgtk-x11-2.0  -ldl -lxml2 -lpthread -lcups -lbuftool ../../cngplp/cngplpmod/libcngplpmod.la
++ncapstatusui2l_LDADD = ../../cngplp/cngplpmod/libcngplpmod.la @PACKAGE_LIBS@ -ldl -lxml2 -lpthread -lcups -lbuftool
+ #ncapstatusui2l_LDADD = -lgtk-x11-2.0  -lxml2 -lcups ../cngplpmod/libcngplpmod.la
+ 
+ ncapstatusui2l_LDFLAGS = \
+diff --git a/cnrdrvcups-sfp-5.00/StatusMonitor/src/callbacks.c b/cnrdrvcups-sfp-5.00/StatusMonitor/src/callbacks.c
+index 2d16bb9..9a706f2 100644
+--- a/cnrdrvcups-sfp-5.00/StatusMonitor/src/callbacks.c
++++ b/cnrdrvcups-sfp-5.00/StatusMonitor/src/callbacks.c
+@@ -42,7 +42,7 @@ static void ActivateShowMsg_Common( UIStatusWnd * const wnd, const int nID );
+ static void ActivateShowDlg_Common( UIStatusWnd * const wnd, void (* const ShowDialog)(UIStatusWnd * const wnd) );
+ 
+ void
+-on_StatusMonitorWnd_destroy            (GtkObject       *object,
++on_StatusMonitorWnd_destroy            (GObject       *object,
+                                         gpointer         user_data)
+ {
+ UI_DEBUG("destroy\n");
+@@ -307,7 +307,7 @@ on_CancelJobKeyDlg_dialog_delete_event (GtkWidget       *widget,
+ 
+ 
+ void
+-on_CancelJobKeyDlg_dialog_destroy      (GtkObject       *object,
++on_CancelJobKeyDlg_dialog_destroy      (GObject       *object,
+ 					gpointer	 user_data)
+ {
+ 	DisposeJobCancelKeyDlg( g_status_window );
+@@ -332,7 +332,7 @@ on_sleep_settings_activate             (GtkMenuItem     *menuitem,
+ 
+ 
+ void
+-on_SleepS_dialog_destroy           (GtkObject       *object,
++on_SleepS_dialog_destroy           (GObject       *object,
+                     gpointer     user_data)
+ {
+ 	DisposeSleepSettingDlg( g_status_window );
+@@ -344,7 +344,7 @@ on_SleepSDlg_Use_checkbutton_toggled   (GtkToggleButton *togglebutton,
+ 					gpointer	 user_data)
+ {
+ 	if(SigDisable()){
+-		UpdateSleepSettingDlgWidgets(g_status_window, (int)togglebutton->active);
++		UpdateSleepSettingDlgWidgets(g_status_window, (int)gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (togglebutton)));
+ 	}
+ 	SigEnable();
+ }
+@@ -385,7 +385,7 @@ on_auto_shutdown_settings_activate     (GtkMenuItem     *menuitem,
+ }
+ 
+ void
+-on_AutoShutdown_dialog_destroy           (GtkObject       *object,
++on_AutoShutdown_dialog_destroy           (GObject       *object,
+                     gpointer     user_data)
+ {
+ 	DisposeAutoShutdownDlg( g_status_window );
+@@ -398,7 +398,7 @@ on_AutoShutdownDlg_Use_checkbutton_toggled   (GtkToggleButton *togglebutton,
+ {
+ 	if( (SigDisable() != FALSE) && (togglebutton != NULL) )
+ 	{
+-		UpdateAutoShutdownDlgWidgets( g_status_window, (int)togglebutton->active );
++		UpdateAutoShutdownDlgWidgets( g_status_window, (int)gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (togglebutton)) );
+ 	}
+ 	SigEnable();
+ }
+@@ -448,7 +448,7 @@ on_ImgAdjust_dialog_delete_event     (GtkWidget       *widget,
+ }
+ 
+ void
+-on_ImgAdjust_dialog_destroy           (GtkObject       *object,
++on_ImgAdjust_dialog_destroy           (GObject       *object,
+                     gpointer     user_data)
+ {
+ 	DisposeImgAdjustDlg( g_status_window );
+@@ -461,7 +461,7 @@ on_ImgAdjustDlg_Calib_checkbutton_toggled   (GtkToggleButton *togglebutton,
+ {
+ 	if( (SigDisable() != FALSE) && (togglebutton != NULL) )
+ 	{
+-		UpdateImgAdjustDlgWidgets( g_status_window, (int)togglebutton->active );
++		UpdateImgAdjustDlgWidgets( g_status_window, (int)gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (togglebutton)) );
+ 	}
+ 	SigEnable();
+ }
+@@ -526,7 +526,7 @@ on_HideSM_button_clicked               (GtkButton       *button,
+ }
+ 
+ void
+-on_Msg_USBRetry_dialog_show				(GtkObject       *object,
++on_Msg_USBRetry_dialog_show				(GObject       *object,
+                                         gpointer         user_data)
+ {
+ 	LeaveCriticalSection(&g_USBRetrySection);
+@@ -543,7 +543,7 @@ gboolean on_Msg_dialog_hide_from_thread(gpointer data)
+ }
+ 
+ void
+-on_Msg_dialog_destroy                  (GtkObject       *object,
++on_Msg_dialog_destroy                  (GObject       *object,
+                                         gpointer         user_data)
+ {
+ 	DisposeMsgDlg( g_status_window );
+@@ -623,7 +623,7 @@ on_paper_size_override_dialog_delete_event
+ 
+ 
+ void
+-on_paper_size_override_dialog_destroy  (GtkObject       *object,
++on_paper_size_override_dialog_destroy  (GObject       *object,
+                                         gpointer         user_data)
+ {
+ 	DisposeOverRideDlg( g_status_window );
+@@ -640,7 +640,7 @@ on_DisableWiFiDlg_delete_event         (GtkWidget       *widget,
+ 
+ 
+ void
+-on_DisableWiFiDlg_destroy              (GtkObject       *object,
++on_DisableWiFiDlg_destroy              (GObject       *object,
+                                         gpointer         user_data)
+ {
+ 	DisposeDisableWifiDlg( g_status_window );
+@@ -684,7 +684,7 @@ on_AssistDlg_delete_event              (GtkWidget       *widget,
+ 
+ 
+ void
+-on_AssistDlg_destroy                   (GtkObject       *object,
++on_AssistDlg_destroy                   (GObject       *object,
+                                         gpointer         user_data)
+ {
+ 	DisposeAssistDlg( g_status_window );
+@@ -752,7 +752,7 @@ on_ConsumablesDlg_delete_event         (GtkWidget       *widget,
+ 
+ 
+ void
+-on_ConsumablesDlg_destroy              (GtkObject       *object,
++on_ConsumablesDlg_destroy              (GObject       *object,
+                                         gpointer         user_data)
+ {
+ 	DisposeConsumablesDlg( g_status_window );
+@@ -779,7 +779,7 @@ on_CounterDlg_delete_event             (GtkWidget       *widget,
+ 
+ 
+ void
+-on_CounterDlg_destroy                  (GtkObject       *object,
++on_CounterDlg_destroy                  (GObject       *object,
+                                         gpointer         user_data)
+ {
+ 	DisposeCounterDlg( g_status_window );
+@@ -797,7 +797,7 @@ on_CounterDlg_OK_button_clicked        (GtkButton       *button,
+ }
+ 
+ void
+-on_WLANStatusDlg_destroy               (GtkObject       *object,
++on_WLANStatusDlg_destroy               (GObject       *object,
+                                         gpointer         user_data)
+ {
+ 	DisposeWlansStatusDlg( g_status_window );
+@@ -831,7 +831,7 @@ on_PFeedUnitDlg_delete_event           (GtkWidget       *widget,
+ 
+ 
+ void
+-on_PFeedUnitDlg_destroy                (GtkObject       *object,
++on_PFeedUnitDlg_destroy                (GObject       *object,
+                                         gpointer         user_data)
+ {
+ 	DisposePFeedUnitDlg( g_status_window );
+@@ -967,7 +967,7 @@ on_WarningDisplayDlg_delete_event     (GtkWidget       *widget,
+ }
+ 
+ void
+-on_WarningDisplayDlg_destroy          (GtkObject       *object,
++on_WarningDisplayDlg_destroy          (GObject       *object,
+                                         gpointer         user_data)
+ {
+ 	DisposeWarningDisplayDlg( g_status_window );
+@@ -1016,7 +1016,7 @@ on_WarningDetails_dialog_delete_event  (GtkWidget       *widget,
+ }
+ 
+ void
+-on_WarningDetails_dialog_destroy       (GtkObject       *object,
++on_WarningDetails_dialog_destroy       (GObject       *object,
+                                         gpointer         user_data)
+ {
+ 	DisposeWarningDetailsDlg( g_status_window );
+@@ -1057,7 +1057,7 @@ on_MobilePrint_dialog_delete_event     (GtkWidget       *widget,
+ }
+ 
+ void
+-on_MobilePrint_dialog_destroy          (GtkObject       *object,
++on_MobilePrint_dialog_destroy          (GObject       *object,
+                                         gpointer         user_data)
+ {
+ 	DisposeMobilePrintDlg( g_status_window );
+@@ -1101,7 +1101,7 @@ on_PaperSizeCheck_dialog_delete_event  (GtkWidget       *widget,
+ 
+ 
+ void
+-on_PaperSizeCheck_dialog_destroy       (GtkObject       *object,
++on_PaperSizeCheck_dialog_destroy       (GObject       *object,
+                                         gpointer         user_data)
+ {
+ 	DisposePaperSizeCheckDlg(g_status_window);
+@@ -1144,7 +1144,7 @@ on_ReportPrint_dialog_delete_event     (GtkWidget       *widget,
+ }
+ 
+ void
+-on_ReportPrint_dialog_destroy          (GtkObject       *object,
++on_ReportPrint_dialog_destroy          (GObject       *object,
+                                         gpointer         user_data)
+ {
+ 	DisposeReportPrintDlg(g_status_window);
+@@ -1187,7 +1187,7 @@ on_SwitchPaperFeed_dialog_delete_event
+ 
+ void
+ on_SwitchPaperFeed_dialog_destroy
+-                                        (GtkObject       *object,
++                                        (GObject       *object,
+                                         gpointer         user_data)
+ {
+ 	DisposeSwitchPaperFeedDlg(g_status_window);
+@@ -1251,7 +1251,7 @@ on_pc_scr_dialog_delete_event
+ 
+ void
+ on_pc_scr_dialog_destroy
+-										(GtkObject       *object,
++										(GObject       *object,
+ 										gpointer         user_data)
+ {
+ 	DisposePurchaseConsumables_scr_dlg(g_status_window);
+diff --git a/cnrdrvcups-sfp-5.00/StatusMonitor/src/callbacks.h b/cnrdrvcups-sfp-5.00/StatusMonitor/src/callbacks.h
+index 219a51b..77ee0a0 100644
+--- a/cnrdrvcups-sfp-5.00/StatusMonitor/src/callbacks.h
++++ b/cnrdrvcups-sfp-5.00/StatusMonitor/src/callbacks.h
+@@ -24,7 +24,7 @@
+ 
+ 
+ void
+-on_StatusMonitorWnd_destroy            (GtkObject       *object,
++on_StatusMonitorWnd_destroy            (GObject       *object,
+                                         gpointer         user_data);
+ 
+ gboolean
+@@ -125,14 +125,14 @@ on_CancelJob_button_clicked            (GtkButton       *button,
+                                         gpointer         user_data);
+ 
+ void
+-on_Msg_USBRetry_dialog_show				(GtkObject       *object,
++on_Msg_USBRetry_dialog_show				(GObject       *object,
+                                         gpointer         user_data);
+ 
+ gboolean
+ on_Msg_dialog_hide_from_thread(gpointer data);
+ 
+ void
+-on_Msg_dialog_destroy                  (GtkObject       *object,
++on_Msg_dialog_destroy                  (GObject       *object,
+                                         gpointer         user_data);
+ 
+ gboolean
+@@ -163,7 +163,7 @@ on_SleepS_dialog_delete_event          (GtkWidget       *widget,
+                                         gpointer         user_data);
+ 
+ void
+-on_SleepS_dialog_destroy               (GtkObject       *object,
++on_SleepS_dialog_destroy               (GObject       *object,
+                                         gpointer         user_data);
+ 
+ void
+@@ -184,7 +184,7 @@ on_CancelJobKeyDlg_dialog_delete_event (GtkWidget       *widget,
+                                         gpointer         user_data);
+ 
+ void
+-on_CancelJobKeyDlg_dialog_destroy      (GtkObject       *object,
++on_CancelJobKeyDlg_dialog_destroy      (GObject       *object,
+                                         gpointer         user_data);
+ void
+ on_CJKDlg_ErrorJob_checkbutton_toggled (GtkToggleButton *togglebutton,
+@@ -216,11 +216,11 @@ on_CancelJobKeyDlg_dialog_delete_event (GtkWidget       *widget,
+                                         gpointer         user_data);
+ 
+ void
+-on_CancelJobKeyDlg_dialog_destroy      (GtkObject       *object,
++on_CancelJobKeyDlg_dialog_destroy      (GObject       *object,
+                                         gpointer         user_data);
+ 
+ void
+-on_paper_size_override_dialog_destroy      (GtkObject       *object,
++on_paper_size_override_dialog_destroy      (GObject       *object,
+ 											gpointer	 user_data);
+ 
+ void
+@@ -254,7 +254,7 @@ on_paper_size_override_dialog_delete_event
+                                         gpointer         user_data);
+ 
+ void
+-on_paper_size_override_dialog_destroy  (GtkObject       *object,
++on_paper_size_override_dialog_destroy  (GObject       *object,
+                                         gpointer         user_data);
+ gboolean
+ on_DisableWiFiDlg_delete_event         (GtkWidget       *widget,
+@@ -262,7 +262,7 @@ on_DisableWiFiDlg_delete_event         (GtkWidget       *widget,
+                                         gpointer         user_data);
+ 
+ void
+-on_DisableWiFiDlg_destroy              (GtkObject       *object,
++on_DisableWiFiDlg_destroy              (GObject       *object,
+                                         gpointer         user_data);
+ 
+ void
+@@ -283,7 +283,7 @@ on_AssistDlg_delete_event              (GtkWidget       *widget,
+                                         gpointer         user_data);
+ 
+ void
+-on_AssistDlg_destroy                   (GtkObject       *object,
++on_AssistDlg_destroy                   (GObject       *object,
+                                         gpointer         user_data);
+ 
+ void
+@@ -317,7 +317,7 @@ on_ConsumablesDlg_delete_event         (GtkWidget       *widget,
+                                         gpointer         user_data);
+ 
+ void
+-on_ConsumablesDlg_destroy              (GtkObject       *object,
++on_ConsumablesDlg_destroy              (GObject       *object,
+                                         gpointer         user_data);
+ 
+ void
+@@ -330,7 +330,7 @@ on_CounterDlg_delete_event             (GtkWidget       *widget,
+                                         gpointer         user_data);
+ 
+ void
+-on_CounterDlg_destroy                  (GtkObject       *object,
++on_CounterDlg_destroy                  (GObject       *object,
+                                         gpointer         user_data);
+ 
+ void
+@@ -343,7 +343,7 @@ on_WLANStatusDlg_delete_event          (GtkWidget       *widget,
+                                         gpointer         user_data);
+ 
+ void
+-on_WLANStatusDlg_destroy               (GtkObject       *object,
++on_WLANStatusDlg_destroy               (GObject       *object,
+                                         gpointer         user_data);
+ 
+ void
+@@ -356,7 +356,7 @@ on_AutoShutdown_dialog_delete_event          (GtkWidget       *widget,
+                                         gpointer         user_data);
+ 
+ void
+-on_AutoShutdown_dialog_destroy               (GtkObject       *object,
++on_AutoShutdown_dialog_destroy               (GObject       *object,
+                                         gpointer         user_data);
+ 
+ void
+@@ -377,7 +377,7 @@ on_ImgAdjust_dialog_delete_event     (GtkWidget       *widget,
+ 											 gpointer     user_data);
+ 
+ void
+-on_ImgAdjust_dialog_destroy           (GtkObject       *object,
++on_ImgAdjust_dialog_destroy           (GObject       *object,
+ 											 gpointer     user_data);
+ 
+ void
+@@ -400,7 +400,7 @@ on_PFeedUnitDlg_delete_event           (GtkWidget       *widget,
+                                         gpointer         user_data);
+ 
+ void
+-on_PFeedUnitDlg_destroy                (GtkObject       *object,
++on_PFeedUnitDlg_destroy                (GObject       *object,
+                                         gpointer         user_data);
+ 
+ void
+@@ -455,7 +455,7 @@ on_WarningDisplayDlg_delete_event      (GtkWidget       *widget,
+                                         gpointer         user_data);
+ 
+ void
+-on_WarningDisplayDlg_destroy           (GtkObject       *object,
++on_WarningDisplayDlg_destroy           (GObject       *object,
+                                         gpointer         user_data);
+ 
+ void
+@@ -483,7 +483,7 @@ on_WarningDetails_dialog_delete_event  (GtkWidget       *widget,
+                                         gpointer         user_data);
+ 
+ void
+-on_WarningDetails_dialog_destroy       (GtkObject       *object,
++on_WarningDetails_dialog_destroy       (GObject       *object,
+                                         gpointer         user_data);
+ 
+ void
+@@ -506,7 +506,7 @@ on_MobilePrint_dialog_delete_event     (GtkWidget       *widget,
+                                         gpointer         user_data);
+ 
+ void
+-on_MobilePrint_dialog_destroy          (GtkObject       *object,
++on_MobilePrint_dialog_destroy          (GObject       *object,
+                                         gpointer         user_data);
+ 
+ void
+@@ -529,7 +529,7 @@ on_PaperSizeCheck_dialog_delete_event  (GtkWidget       *widget,
+                                         gpointer         user_data);
+ 
+ void
+-on_PaperSizeCheck_dialog_destroy       (GtkObject       *object,
++on_PaperSizeCheck_dialog_destroy       (GObject       *object,
+                                         gpointer         user_data);
+ 
+ void
+@@ -552,7 +552,7 @@ on_ReportPrint_dialog_delete_event     (GtkWidget       *widget,
+                                         gpointer         user_data);
+ 
+ void
+-on_ReportPrint_dialog_destroy          (GtkObject       *object,
++on_ReportPrint_dialog_destroy          (GObject       *object,
+                                         gpointer         user_data);
+ 
+ void
+@@ -576,7 +576,7 @@ on_SwitchPaperFeed_dialog_delete_event
+ 
+ void
+ on_SwitchPaperFeed_dialog_destroy
+-                                        (GtkObject       *object,
++                                        (GObject       *object,
+                                         gpointer         user_data);
+ 
+ void
+@@ -611,7 +611,7 @@ on_pc_scr_dialog_delete_event
+ 
+ void
+ on_pc_scr_dialog_destroy
+-										(GtkObject       *object,
++										(GObject       *object,
+                                         gpointer         user_data);
+ 
+ void
+diff --git a/cnrdrvcups-sfp-5.00/StatusMonitor/src/interface.c b/cnrdrvcups-sfp-5.00/StatusMonitor/src/interface.c
+index 9849b56..fdb912c 100644
+--- a/cnrdrvcups-sfp-5.00/StatusMonitor/src/interface.c
++++ b/cnrdrvcups-sfp-5.00/StatusMonitor/src/interface.c
+@@ -42,7 +42,7 @@
+ 
+ #define GLADE_HOOKUP_OBJECT(component,widget,name) \
+   g_object_set_data_full (G_OBJECT (component), name, \
+-    gtk_widget_ref (widget), (GDestroyNotify) gtk_widget_unref)
++    g_object_ref (widget), (GDestroyNotify) g_object_unref)
+ 
+ #define GLADE_HOOKUP_OBJECT_NO_REF(component,widget,name) \
+   g_object_set_data (G_OBJECT (component), name, widget)
+@@ -113,18 +113,18 @@ create_StatusMonitorWnd (void)
+   GtkWidget *pc_frame_label;
+ 
+   StatusMonitorWnd = gtk_window_new (GTK_WINDOW_TOPLEVEL);
+-  GTK_WIDGET_SET_FLAGS (StatusMonitorWnd, GTK_CAN_DEFAULT);
++  gtk_widget_set_can_default (StatusMonitorWnd, TRUE);
+   gtk_window_set_default_size (GTK_WINDOW (StatusMonitorWnd), 480, 360);
+   gtk_window_set_resizable (GTK_WINDOW (StatusMonitorWnd), FALSE);
+ 
+-  vbox_SMWnd = gtk_vbox_new (FALSE, 0);
++  vbox_SMWnd = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
+   gtk_widget_show (vbox_SMWnd);
+   gtk_container_add (GTK_CONTAINER (StatusMonitorWnd), vbox_SMWnd);
+ 
+   menubar = gtk_menu_bar_new ();
+   gtk_widget_show (menubar);
+   gtk_box_pack_start (GTK_BOX (vbox_SMWnd), menubar, FALSE, FALSE, 0);
+-  GTK_WIDGET_SET_FLAGS (menubar, GTK_CAN_DEFAULT);
++  gtk_widget_set_can_default (menubar, TRUE);
+ 
+   job = gtk_menu_item_new_with_mnemonic (_("Job"));
+   gtk_widget_show (job);
+@@ -241,7 +241,7 @@ create_StatusMonitorWnd (void)
+   hide_statusmonitor = gtk_menu_item_new_with_mnemonic (_("Hide Statusmonitor"));
+   gtk_container_add (GTK_CONTAINER (options_menu), hide_statusmonitor);
+ 
+-  SMWndHide_hbuttonbox = gtk_hbutton_box_new ();
++  SMWndHide_hbuttonbox = gtk_button_box_new (GTK_ORIENTATION_HORIZONTAL);
+   gtk_widget_show (SMWndHide_hbuttonbox);
+   gtk_box_pack_start (GTK_BOX (vbox_SMWnd), SMWndHide_hbuttonbox, TRUE, TRUE, 0);
+   gtk_button_box_set_layout (GTK_BUTTON_BOX (SMWndHide_hbuttonbox), GTK_BUTTONBOX_END);
+@@ -250,9 +250,9 @@ create_StatusMonitorWnd (void)
+   SMWndHide_button = gtk_button_new_with_mnemonic (_("Hide Statusmonitor"));
+   gtk_widget_show (SMWndHide_button);
+   gtk_container_add (GTK_CONTAINER (SMWndHide_hbuttonbox), SMWndHide_button);
+-  GTK_WIDGET_SET_FLAGS (SMWndHide_button, GTK_CAN_DEFAULT);
++  gtk_widget_set_can_default (SMWndHide_button, TRUE);
+ 
+-  vbox_Message = gtk_vbox_new (FALSE, 0);
++  vbox_Message = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
+   gtk_widget_show (vbox_Message);
+   gtk_box_pack_start (GTK_BOX (vbox_SMWnd), vbox_Message, FALSE, FALSE, 0);
+ 
+@@ -277,7 +277,7 @@ create_StatusMonitorWnd (void)
+   gtk_box_pack_start (GTK_BOX (vbox_Message), scrolledwindow_AssistMessage, TRUE, TRUE, 0);
+   gtk_widget_set_size_request (scrolledwindow_AssistMessage, 380, 180);
+   gtk_container_set_border_width (GTK_CONTAINER (scrolledwindow_AssistMessage), 5);
+-  GTK_WIDGET_UNSET_FLAGS (scrolledwindow_AssistMessage, GTK_CAN_FOCUS);
++  gtk_widget_set_can_focus (scrolledwindow_AssistMessage, FALSE);
+   gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scrolledwindow_AssistMessage), GTK_POLICY_NEVER, GTK_POLICY_ALWAYS);
+   gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (scrolledwindow_AssistMessage), GTK_SHADOW_IN);
+ 
+@@ -293,7 +293,7 @@ create_StatusMonitorWnd (void)
+   gtk_container_set_border_width (GTK_CONTAINER (frame_ResumeCancel), 5);
+   gtk_frame_set_shadow_type (GTK_FRAME (frame_ResumeCancel), GTK_SHADOW_NONE);
+ 
+-  hbox_ResumeCancel = gtk_hbox_new (FALSE, 0);
++  hbox_ResumeCancel = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
+   gtk_widget_show (hbox_ResumeCancel);
+   gtk_container_add (GTK_CONTAINER (frame_ResumeCancel), hbox_ResumeCancel);
+ 
+@@ -307,7 +307,7 @@ create_StatusMonitorWnd (void)
+   gtk_box_pack_end (GTK_BOX (hbox_ResumeCancel), ContinueRetry_button, FALSE, FALSE, 0);
+   gtk_widget_set_sensitive (ContinueRetry_button, FALSE);
+ 
+-  pc_vbox = gtk_vbox_new (FALSE, 0);
++  pc_vbox = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
+   gtk_widget_show (pc_vbox);
+   gtk_box_pack_start (GTK_BOX (vbox_SMWnd), pc_vbox, TRUE, TRUE, 0);
+ 
+@@ -321,11 +321,11 @@ create_StatusMonitorWnd (void)
+   gtk_container_add (GTK_CONTAINER (pc_frame), pc_frame_alignment);
+   gtk_alignment_set_padding (GTK_ALIGNMENT (pc_frame_alignment), 5, 10, 10, 10);
+ 
+-  pc_frame_vbox = gtk_vbox_new (FALSE, 0);
++  pc_frame_vbox = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
+   gtk_widget_show (pc_frame_vbox);
+   gtk_container_add (GTK_CONTAINER (pc_frame_alignment), pc_frame_vbox);
+ 
+-  pc_Message_label_vbox = gtk_vbox_new (FALSE, 0);
++  pc_Message_label_vbox = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
+   gtk_widget_show (pc_Message_label_vbox);
+   gtk_box_pack_start (GTK_BOX (pc_frame_vbox), pc_Message_label_vbox, FALSE, FALSE, 0);
+ 
+@@ -336,7 +336,7 @@ create_StatusMonitorWnd (void)
+   gtk_label_set_line_wrap (GTK_LABEL (pc_Message_label), TRUE);
+   gtk_misc_set_alignment (GTK_MISC (pc_Message_label), 0, 0);
+ 
+-  pc_access_purchasing_site_hbuttonbox = gtk_hbox_new (FALSE, 0);
++  pc_access_purchasing_site_hbuttonbox = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
+   gtk_widget_show (pc_access_purchasing_site_hbuttonbox);
+   gtk_box_pack_start (GTK_BOX (pc_frame_vbox), pc_access_purchasing_site_hbuttonbox, TRUE, TRUE, 0);
+ 
+@@ -538,7 +538,7 @@ create_Msg_dialog (void)
+   gtk_window_set_resizable (GTK_WINDOW (Msg_dialog), FALSE);
+   gtk_window_set_type_hint (GTK_WINDOW (Msg_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
+ 
+-  dialog_vbox3 = GTK_DIALOG (Msg_dialog)->vbox;
++  dialog_vbox3 = gtk_dialog_get_content_area (GTK_DIALOG (Msg_dialog));
+   gtk_widget_show (dialog_vbox3);
+ 
+   frame49 = gtk_frame_new (NULL);
+@@ -552,11 +552,11 @@ create_Msg_dialog (void)
+   gtk_container_add (GTK_CONTAINER (frame49), MsgDlg_label);
+   gtk_misc_set_alignment (GTK_MISC (MsgDlg_label), 0, 0.5);
+ 
+-  dialog_action_area3 = GTK_DIALOG (Msg_dialog)->action_area;
++  dialog_action_area3 = gtk_dialog_get_action_area (GTK_DIALOG (Msg_dialog));
+   gtk_widget_show (dialog_action_area3);
+   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area3), GTK_BUTTONBOX_END);
+ 
+-  hbuttonbox3 = gtk_hbutton_box_new ();
++  hbuttonbox3 = gtk_button_box_new (GTK_ORIENTATION_HORIZONTAL);
+   gtk_widget_show (hbuttonbox3);
+   gtk_container_add (GTK_CONTAINER (dialog_action_area3), hbuttonbox3);
+   gtk_button_box_set_layout (GTK_BUTTON_BOX (hbuttonbox3), GTK_BUTTONBOX_SPREAD);
+@@ -564,12 +564,12 @@ create_Msg_dialog (void)
+   MsgDlg_OK_button = gtk_button_new_with_mnemonic (_("OK"));
+   gtk_widget_show (MsgDlg_OK_button);
+   gtk_container_add (GTK_CONTAINER (hbuttonbox3), MsgDlg_OK_button);
+-  GTK_WIDGET_SET_FLAGS (MsgDlg_OK_button, GTK_CAN_DEFAULT);
++  gtk_widget_set_can_default (MsgDlg_OK_button, TRUE);
+ 
+   MsgDlg_Cancel_button = gtk_button_new_with_mnemonic (_("Cancel "));
+   gtk_widget_show (MsgDlg_Cancel_button);
+   gtk_container_add (GTK_CONTAINER (hbuttonbox3), MsgDlg_Cancel_button);
+-  GTK_WIDGET_SET_FLAGS (MsgDlg_Cancel_button, GTK_CAN_DEFAULT);
++  gtk_widget_set_can_default (MsgDlg_Cancel_button, TRUE);
+ 
+   g_signal_connect ((gpointer) Msg_dialog, "destroy",
+                     G_CALLBACK (on_Msg_dialog_destroy),
+@@ -618,7 +618,7 @@ create_SleepS_dialog (void)
+   gtk_window_set_resizable (GTK_WINDOW (SleepS_dialog), FALSE);
+   gtk_window_set_type_hint (GTK_WINDOW (SleepS_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
+ 
+-  dialog_vbox6 = GTK_DIALOG (SleepS_dialog)->vbox;
++  dialog_vbox6 = gtk_dialog_get_content_area (GTK_DIALOG (SleepS_dialog));
+   gtk_widget_show (dialog_vbox6);
+ 
+   frame53 = gtk_frame_new (NULL);
+@@ -627,7 +627,7 @@ create_SleepS_dialog (void)
+   gtk_container_set_border_width (GTK_CONTAINER (frame53), 5);
+   gtk_frame_set_shadow_type (GTK_FRAME (frame53), GTK_SHADOW_NONE);
+ 
+-  vbox39 = gtk_vbox_new (FALSE, 0);
++  vbox39 = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
+   gtk_widget_show (vbox39);
+   gtk_container_add (GTK_CONTAINER (frame53), vbox39);
+ 
+@@ -635,7 +635,7 @@ create_SleepS_dialog (void)
+   gtk_widget_show (SleepSDlg_Use_checkbutton);
+   gtk_box_pack_start (GTK_BOX (vbox39), SleepSDlg_Use_checkbutton, FALSE, FALSE, 0);
+ 
+-  hbox61 = gtk_hbox_new (FALSE, 0);
++  hbox61 = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
+   gtk_widget_show (hbox61);
+   gtk_box_pack_start (GTK_BOX (vbox39), hbox61, TRUE, TRUE, 0);
+ 
+@@ -645,7 +645,7 @@ create_SleepS_dialog (void)
+   gtk_label_set_justify (GTK_LABEL (label157), GTK_JUSTIFY_CENTER);
+   gtk_misc_set_padding (GTK_MISC (label157), 3, 0);
+ 
+-  SleepSDlg_Time_combo = gtk_combo_box_new_text ();
++  SleepSDlg_Time_combo = gtk_combo_box_text_new ();
+   gtk_widget_show (SleepSDlg_Time_combo);
+   gtk_box_pack_start (GTK_BOX (hbox61), SleepSDlg_Time_combo, TRUE, TRUE, 0);
+ 
+@@ -655,11 +655,11 @@ create_SleepS_dialog (void)
+   gtk_label_set_justify (GTK_LABEL (label158), GTK_JUSTIFY_CENTER);
+   gtk_misc_set_padding (GTK_MISC (label158), 3, 0);
+ 
+-  dialog_action_area6 = GTK_DIALOG (SleepS_dialog)->action_area;
++  dialog_action_area6 = gtk_dialog_get_action_area (GTK_DIALOG (SleepS_dialog));
+   gtk_widget_show (dialog_action_area6);
+   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area6), GTK_BUTTONBOX_END);
+ 
+-  hbuttonbox6 = gtk_hbutton_box_new ();
++  hbuttonbox6 = gtk_button_box_new (GTK_ORIENTATION_HORIZONTAL);
+   gtk_widget_show (hbuttonbox6);
+   gtk_container_add (GTK_CONTAINER (dialog_action_area6), hbuttonbox6);
+   gtk_button_box_set_layout (GTK_BUTTON_BOX (hbuttonbox6), GTK_BUTTONBOX_END);
+@@ -667,12 +667,12 @@ create_SleepS_dialog (void)
+   SleepSDlg_OK_button = gtk_button_new_with_mnemonic (_("OK"));
+   gtk_widget_show (SleepSDlg_OK_button);
+   gtk_container_add (GTK_CONTAINER (hbuttonbox6), SleepSDlg_OK_button);
+-  GTK_WIDGET_SET_FLAGS (SleepSDlg_OK_button, GTK_CAN_DEFAULT);
++  gtk_widget_set_can_default (SleepSDlg_OK_button, TRUE);
+ 
+   SleepSDlg_Cancel_button = gtk_button_new_with_mnemonic (_("Cancel "));
+   gtk_widget_show (SleepSDlg_Cancel_button);
+   gtk_container_add (GTK_CONTAINER (hbuttonbox6), SleepSDlg_Cancel_button);
+-  GTK_WIDGET_SET_FLAGS (SleepSDlg_Cancel_button, GTK_CAN_DEFAULT);
++  gtk_widget_set_can_default (SleepSDlg_Cancel_button, TRUE);
+ 
+   g_signal_connect ((gpointer) SleepS_dialog, "delete_event",
+                     G_CALLBACK (on_SleepS_dialog_delete_event),
+@@ -729,7 +729,7 @@ create_CancelJobKeyDlg_dialog (void)
+   gtk_window_set_resizable (GTK_WINDOW (CancelJobKeyDlg_dialog), FALSE);
+   gtk_window_set_type_hint (GTK_WINDOW (CancelJobKeyDlg_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
+ 
+-  dialog_vbox7 = GTK_DIALOG (CancelJobKeyDlg_dialog)->vbox;
++  dialog_vbox7 = gtk_dialog_get_content_area (GTK_DIALOG (CancelJobKeyDlg_dialog));
+   gtk_widget_show (dialog_vbox7);
+ 
+   frame54 = gtk_frame_new (NULL);
+@@ -738,7 +738,7 @@ create_CancelJobKeyDlg_dialog (void)
+   gtk_container_set_border_width (GTK_CONTAINER (frame54), 10);
+   gtk_frame_set_shadow_type (GTK_FRAME (frame54), GTK_SHADOW_NONE);
+ 
+-  vbox40 = gtk_vbox_new (FALSE, 0);
++  vbox40 = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
+   gtk_widget_show (vbox40);
+   gtk_container_add (GTK_CONTAINER (frame54), vbox40);
+ 
+@@ -747,11 +747,11 @@ create_CancelJobKeyDlg_dialog (void)
+   gtk_box_pack_start (GTK_BOX (vbox40), CJKDlg_ErrorJob_checkbutton, FALSE, FALSE, 0);
+   gtk_widget_set_size_request (CJKDlg_ErrorJob_checkbutton, 420, -1);
+ 
+-  dialog_action_area7 = GTK_DIALOG (CancelJobKeyDlg_dialog)->action_area;
++  dialog_action_area7 = gtk_dialog_get_action_area (GTK_DIALOG (CancelJobKeyDlg_dialog));
+   gtk_widget_show (dialog_action_area7);
+   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area7), GTK_BUTTONBOX_END);
+ 
+-  hbuttonbox7 = gtk_hbutton_box_new ();
++  hbuttonbox7 = gtk_button_box_new (GTK_ORIENTATION_HORIZONTAL);
+   gtk_widget_show (hbuttonbox7);
+   gtk_container_add (GTK_CONTAINER (dialog_action_area7), hbuttonbox7);
+   gtk_button_box_set_layout (GTK_BUTTON_BOX (hbuttonbox7), GTK_BUTTONBOX_END);
+@@ -759,12 +759,12 @@ create_CancelJobKeyDlg_dialog (void)
+   CJKDlg_OK_button = gtk_button_new_with_mnemonic (_("OK"));
+   gtk_widget_show (CJKDlg_OK_button);
+   gtk_container_add (GTK_CONTAINER (hbuttonbox7), CJKDlg_OK_button);
+-  GTK_WIDGET_SET_FLAGS (CJKDlg_OK_button, GTK_CAN_DEFAULT);
++  gtk_widget_set_can_default (CJKDlg_OK_button, TRUE);
+ 
+   CJKDlg_Cancel_button = gtk_button_new_with_mnemonic (_("Cancel "));
+   gtk_widget_show (CJKDlg_Cancel_button);
+   gtk_container_add (GTK_CONTAINER (hbuttonbox7), CJKDlg_Cancel_button);
+-  GTK_WIDGET_SET_FLAGS (CJKDlg_Cancel_button, GTK_CAN_DEFAULT);
++  gtk_widget_set_can_default (CJKDlg_Cancel_button, TRUE);
+ 
+   g_signal_connect ((gpointer) CancelJobKeyDlg_dialog, "delete_event",
+                     G_CALLBACK (on_CancelJobKeyDlg_dialog_delete_event),
+@@ -817,7 +817,7 @@ create_Override_dialog (void)
+   gtk_window_set_resizable (GTK_WINDOW (Override_dialog), FALSE);
+   gtk_window_set_type_hint (GTK_WINDOW (Override_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
+ 
+-  vbox41 = GTK_DIALOG (Override_dialog)->vbox;
++  vbox41 = gtk_dialog_get_content_area (GTK_DIALOG (Override_dialog));
+   gtk_widget_show (vbox41);
+ 
+   frame55 = gtk_frame_new (NULL);
+@@ -826,7 +826,7 @@ create_Override_dialog (void)
+   gtk_container_set_border_width (GTK_CONTAINER (frame55), 10);
+   gtk_frame_set_shadow_type (GTK_FRAME (frame55), GTK_SHADOW_NONE);
+ 
+-  vbox42 = gtk_vbox_new (FALSE, 0);
++  vbox42 = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
+   gtk_widget_show (vbox42);
+   gtk_container_add (GTK_CONTAINER (frame55), vbox42);
+ 
+@@ -835,11 +835,11 @@ create_Override_dialog (void)
+   gtk_box_pack_start (GTK_BOX (vbox42), OverrideDlg_Use_checkbutton, FALSE, FALSE, 0);
+   gtk_widget_set_size_request (OverrideDlg_Use_checkbutton, 440, -1);
+ 
+-  hbuttonbox8 = GTK_DIALOG (Override_dialog)->action_area;
++  hbuttonbox8 = gtk_dialog_get_action_area (GTK_DIALOG (Override_dialog));
+   gtk_widget_show (hbuttonbox8);
+   gtk_button_box_set_layout (GTK_BUTTON_BOX (hbuttonbox8), GTK_BUTTONBOX_END);
+ 
+-  hbuttonbox9 = gtk_hbutton_box_new ();
++  hbuttonbox9 = gtk_button_box_new (GTK_ORIENTATION_HORIZONTAL);
+   gtk_widget_show (hbuttonbox9);
+   gtk_container_add (GTK_CONTAINER (hbuttonbox8), hbuttonbox9);
+   gtk_button_box_set_layout (GTK_BUTTON_BOX (hbuttonbox9), GTK_BUTTONBOX_END);
+@@ -847,12 +847,12 @@ create_Override_dialog (void)
+   OverrideDlg_OK_button = gtk_button_new_with_mnemonic (_("OK"));
+   gtk_widget_show (OverrideDlg_OK_button);
+   gtk_container_add (GTK_CONTAINER (hbuttonbox9), OverrideDlg_OK_button);
+-  GTK_WIDGET_SET_FLAGS (OverrideDlg_OK_button, GTK_CAN_DEFAULT);
++  gtk_widget_set_can_default (OverrideDlg_OK_button, TRUE);
+ 
+   OverrideDlg_Cancel_button = gtk_button_new_with_mnemonic (_("Cancel "));
+   gtk_widget_show (OverrideDlg_Cancel_button);
+   gtk_container_add (GTK_CONTAINER (hbuttonbox9), OverrideDlg_Cancel_button);
+-  GTK_WIDGET_SET_FLAGS (OverrideDlg_Cancel_button, GTK_CAN_DEFAULT);
++  gtk_widget_set_can_default (OverrideDlg_Cancel_button, TRUE);
+ 
+   g_signal_connect ((gpointer) Override_dialog, "delete_event",
+                     G_CALLBACK (on_paper_size_override_dialog_delete_event),
+@@ -907,7 +907,7 @@ create_DisableWiFi_dialog (void)
+   gtk_window_set_resizable (GTK_WINDOW (DisableWiFi_dialog), FALSE);
+   gtk_window_set_type_hint (GTK_WINDOW (DisableWiFi_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
+ 
+-  vbox43 = GTK_DIALOG (DisableWiFi_dialog)->vbox;
++  vbox43 = gtk_dialog_get_content_area (GTK_DIALOG (DisableWiFi_dialog));
+   gtk_widget_show (vbox43);
+ 
+   frame56 = gtk_frame_new (NULL);
+@@ -916,7 +916,7 @@ create_DisableWiFi_dialog (void)
+   gtk_container_set_border_width (GTK_CONTAINER (frame56), 10);
+   gtk_frame_set_shadow_type (GTK_FRAME (frame56), GTK_SHADOW_NONE);
+ 
+-  vbox44 = gtk_vbox_new (FALSE, 0);
++  vbox44 = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
+   gtk_widget_show (vbox44);
+   gtk_container_add (GTK_CONTAINER (frame56), vbox44);
+ 
+@@ -924,7 +924,7 @@ create_DisableWiFi_dialog (void)
+   gtk_widget_show (DisableWiFiDlg_Use_checkbutton);
+   gtk_box_pack_start (GTK_BOX (vbox44), DisableWiFiDlg_Use_checkbutton, FALSE, FALSE, 0);
+ 
+-  hbox63 = gtk_hbox_new (FALSE, 0);
++  hbox63 = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
+   gtk_widget_show (hbox63);
+   gtk_box_pack_start (GTK_BOX (vbox44), hbox63, TRUE, TRUE, 0);
+ 
+@@ -933,11 +933,11 @@ create_DisableWiFi_dialog (void)
+   gtk_box_pack_start (GTK_BOX (hbox63), DisableWiFiDlg_Label, FALSE, FALSE, 0);
+   gtk_label_set_justify (GTK_LABEL (DisableWiFiDlg_Label), GTK_JUSTIFY_RIGHT);
+ 
+-  hbuttonbox10 = GTK_DIALOG (DisableWiFi_dialog)->action_area;
++  hbuttonbox10 = gtk_dialog_get_action_area (GTK_DIALOG (DisableWiFi_dialog));
+   gtk_widget_show (hbuttonbox10);
+   gtk_button_box_set_layout (GTK_BUTTON_BOX (hbuttonbox10), GTK_BUTTONBOX_END);
+ 
+-  hbuttonbox11 = gtk_hbutton_box_new ();
++  hbuttonbox11 = gtk_button_box_new (GTK_ORIENTATION_HORIZONTAL);
+   gtk_widget_show (hbuttonbox11);
+   gtk_container_add (GTK_CONTAINER (hbuttonbox10), hbuttonbox11);
+   gtk_button_box_set_layout (GTK_BUTTON_BOX (hbuttonbox11), GTK_BUTTONBOX_END);
+@@ -945,12 +945,12 @@ create_DisableWiFi_dialog (void)
+   DisableWiFiDlg_OK_button = gtk_button_new_with_mnemonic (_("OK"));
+   gtk_widget_show (DisableWiFiDlg_OK_button);
+   gtk_container_add (GTK_CONTAINER (hbuttonbox11), DisableWiFiDlg_OK_button);
+-  GTK_WIDGET_SET_FLAGS (DisableWiFiDlg_OK_button, GTK_CAN_DEFAULT);
++  gtk_widget_set_can_default (DisableWiFiDlg_OK_button, TRUE);
+ 
+   DisableWiFiDlg_Cancel_button = gtk_button_new_with_mnemonic (_("Cancel "));
+   gtk_widget_show (DisableWiFiDlg_Cancel_button);
+   gtk_container_add (GTK_CONTAINER (hbuttonbox11), DisableWiFiDlg_Cancel_button);
+-  GTK_WIDGET_SET_FLAGS (DisableWiFiDlg_Cancel_button, GTK_CAN_DEFAULT);
++  gtk_widget_set_can_default (DisableWiFiDlg_Cancel_button, TRUE);
+ 
+   g_signal_connect ((gpointer) DisableWiFi_dialog, "delete_event",
+                     G_CALLBACK (on_DisableWiFiDlg_delete_event),
+@@ -1032,7 +1032,7 @@ create_Assist_dialog (void)
+   gtk_window_set_resizable (GTK_WINDOW (Assist_dialog), FALSE);
+   gtk_window_set_type_hint (GTK_WINDOW (Assist_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
+ 
+-  vbox45 = GTK_DIALOG (Assist_dialog)->vbox;
++  vbox45 = gtk_dialog_get_content_area (GTK_DIALOG (Assist_dialog));
+   gtk_widget_show (vbox45);
+ 
+   frame57 = gtk_frame_new (NULL);
+@@ -1041,11 +1041,11 @@ create_Assist_dialog (void)
+   gtk_container_set_border_width (GTK_CONTAINER (frame57), 10);
+   gtk_frame_set_shadow_type (GTK_FRAME (frame57), GTK_SHADOW_NONE);
+ 
+-  vbox46 = gtk_vbox_new (FALSE, 0);
++  vbox46 = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
+   gtk_widget_show (vbox46);
+   gtk_container_add (GTK_CONTAINER (frame57), vbox46);
+ 
+-  AssistDlg_SpecialPrintAdjustmentV_box = gtk_hbox_new (TRUE, 0);
++  AssistDlg_SpecialPrintAdjustmentV_box = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
+   gtk_widget_show (AssistDlg_SpecialPrintAdjustmentV_box);
+   gtk_box_pack_start (GTK_BOX (vbox46), AssistDlg_SpecialPrintAdjustmentV_box, TRUE, TRUE, 0);
+ 
+@@ -1054,11 +1054,11 @@ create_Assist_dialog (void)
+   gtk_box_pack_start (GTK_BOX (AssistDlg_SpecialPrintAdjustmentV_box), AssistDlg_SpecialPrintAdjustmentV_label, TRUE, TRUE, 0);
+   gtk_misc_set_alignment (GTK_MISC (AssistDlg_SpecialPrintAdjustmentV_label), 0, 0.5);
+ 
+-  AssistDlg_SpecialPrintAdjustmentV_combo = gtk_combo_box_new_text ();
++  AssistDlg_SpecialPrintAdjustmentV_combo = gtk_combo_box_text_new ();
+   gtk_widget_show (AssistDlg_SpecialPrintAdjustmentV_combo);
+   gtk_box_pack_start (GTK_BOX (AssistDlg_SpecialPrintAdjustmentV_box), AssistDlg_SpecialPrintAdjustmentV_combo, TRUE, TRUE, 0);
+ 
+-  AssistDlg_SpecialPrintAdjustment_box = gtk_hbox_new (TRUE, 0);
++  AssistDlg_SpecialPrintAdjustment_box = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
+   gtk_widget_show (AssistDlg_SpecialPrintAdjustment_box);
+   gtk_box_pack_start (GTK_BOX (vbox46), AssistDlg_SpecialPrintAdjustment_box, TRUE, TRUE, 0);
+ 
+@@ -1067,11 +1067,11 @@ create_Assist_dialog (void)
+   gtk_box_pack_start (GTK_BOX (AssistDlg_SpecialPrintAdjustment_box), AssistDlg_SpecialPrintAdjustment_label, TRUE, TRUE, 0);
+   gtk_misc_set_alignment (GTK_MISC (AssistDlg_SpecialPrintAdjustment_label), 0, 0.5);
+ 
+-  AssistDlg_SpecialPrintAdjustment_combo = gtk_combo_box_new_text ();
++  AssistDlg_SpecialPrintAdjustment_combo = gtk_combo_box_text_new ();
+   gtk_widget_show (AssistDlg_SpecialPrintAdjustment_combo);
+   gtk_box_pack_start (GTK_BOX (AssistDlg_SpecialPrintAdjustment_box), AssistDlg_SpecialPrintAdjustment_combo, TRUE, TRUE, 0);
+ 
+-  AssistDlg_SpecialPrintAdjustmentB_box = gtk_hbox_new (TRUE, 0);
++  AssistDlg_SpecialPrintAdjustmentB_box = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
+   gtk_widget_show (AssistDlg_SpecialPrintAdjustmentB_box);
+   gtk_box_pack_start (GTK_BOX (vbox46), AssistDlg_SpecialPrintAdjustmentB_box, TRUE, TRUE, 0);
+ 
+@@ -1080,11 +1080,11 @@ create_Assist_dialog (void)
+   gtk_box_pack_start (GTK_BOX (AssistDlg_SpecialPrintAdjustmentB_box), AssistDlg_SpecialPrintAdjustmentB_label, TRUE, TRUE, 0);
+   gtk_misc_set_alignment (GTK_MISC (AssistDlg_SpecialPrintAdjustmentB_label), 0, 0.5);
+ 
+-  AssistDlg_SpecialPrintAdjustmentB_combo = gtk_combo_box_new_text ();
++  AssistDlg_SpecialPrintAdjustmentB_combo = gtk_combo_box_text_new ();
+   gtk_widget_show (AssistDlg_SpecialPrintAdjustmentB_combo);
+   gtk_box_pack_start (GTK_BOX (AssistDlg_SpecialPrintAdjustmentB_box), AssistDlg_SpecialPrintAdjustmentB_combo, TRUE, TRUE, 0);
+ 
+-  AssistDlg_SelectLineWidth_box = gtk_hbox_new (TRUE, 0);
++  AssistDlg_SelectLineWidth_box = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
+   gtk_widget_show (AssistDlg_SelectLineWidth_box);
+   gtk_box_pack_start (GTK_BOX (vbox46), AssistDlg_SelectLineWidth_box, TRUE, TRUE, 0);
+ 
+@@ -1093,7 +1093,7 @@ create_Assist_dialog (void)
+   gtk_box_pack_start (GTK_BOX (AssistDlg_SelectLineWidth_box), AssistDlg_SelectLineWidth_label, TRUE, TRUE, 0);
+   gtk_misc_set_alignment (GTK_MISC (AssistDlg_SelectLineWidth_label), 0, 0.5);
+ 
+-  AssistDlg_SelectLineWidth_combo = gtk_combo_box_new_text ();
++  AssistDlg_SelectLineWidth_combo = gtk_combo_box_text_new ();
+   gtk_widget_show (AssistDlg_SelectLineWidth_combo);
+   gtk_box_pack_start (GTK_BOX (AssistDlg_SelectLineWidth_box), AssistDlg_SelectLineWidth_combo, TRUE, TRUE, 0);
+ 
+@@ -1157,11 +1157,11 @@ create_Assist_dialog (void)
+   gtk_widget_show (AssistDlg_PrintQuietMode_checkbutton);
+   gtk_box_pack_start (GTK_BOX (vbox46), AssistDlg_PrintQuietMode_checkbutton, FALSE, FALSE, 0);
+ 
+-  hbuttonbox12 = GTK_DIALOG (Assist_dialog)->action_area;
++  hbuttonbox12 = gtk_dialog_get_action_area (GTK_DIALOG (Assist_dialog));
+   gtk_widget_show (hbuttonbox12);
+   gtk_button_box_set_layout (GTK_BUTTON_BOX (hbuttonbox12), GTK_BUTTONBOX_END);
+ 
+-  hbuttonbox13 = gtk_hbutton_box_new ();
++  hbuttonbox13 = gtk_button_box_new (GTK_ORIENTATION_HORIZONTAL);
+   gtk_widget_show (hbuttonbox13);
+   gtk_container_add (GTK_CONTAINER (hbuttonbox12), hbuttonbox13);
+   gtk_button_box_set_layout (GTK_BUTTON_BOX (hbuttonbox13), GTK_BUTTONBOX_END);
+@@ -1169,12 +1169,12 @@ create_Assist_dialog (void)
+   AssistDlg_OK_button = gtk_button_new_with_mnemonic (_("OK"));
+   gtk_widget_show (AssistDlg_OK_button);
+   gtk_container_add (GTK_CONTAINER (hbuttonbox13), AssistDlg_OK_button);
+-  GTK_WIDGET_SET_FLAGS (AssistDlg_OK_button, GTK_CAN_DEFAULT);
++  gtk_widget_set_can_default (AssistDlg_OK_button, TRUE);
+ 
+   AssistDlg_Cancel_button = gtk_button_new_with_mnemonic (_("Cancel "));
+   gtk_widget_show (AssistDlg_Cancel_button);
+   gtk_container_add (GTK_CONTAINER (hbuttonbox13), AssistDlg_Cancel_button);
+-  GTK_WIDGET_SET_FLAGS (AssistDlg_Cancel_button, GTK_CAN_DEFAULT);
++  gtk_widget_set_can_default (AssistDlg_Cancel_button, TRUE);
+ 
+   g_signal_connect ((gpointer) Assist_dialog, "delete_event",
+                     G_CALLBACK (on_AssistDlg_delete_event),
+@@ -1389,10 +1389,10 @@ create_Consumables_dialog (void)
+   gtk_window_set_resizable (GTK_WINDOW (Consumables_dialog), FALSE);
+   gtk_window_set_type_hint (GTK_WINDOW (Consumables_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
+ 
+-  vbox48 = GTK_DIALOG (Consumables_dialog)->vbox;
++  vbox48 = gtk_dialog_get_content_area (GTK_DIALOG (Consumables_dialog));
+   gtk_widget_show (vbox48);
+ 
+-  ConsumablesDlg_Type1_box = gtk_vbox_new (FALSE, 0);
++  ConsumablesDlg_Type1_box = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
+   gtk_widget_show (ConsumablesDlg_Type1_box);
+   gtk_box_pack_start (GTK_BOX (vbox48), ConsumablesDlg_Type1_box, TRUE, TRUE, 0);
+ 
+@@ -1402,11 +1402,11 @@ create_Consumables_dialog (void)
+   gtk_container_set_border_width (GTK_CONTAINER (frame58), 7);
+   gtk_frame_set_shadow_type (GTK_FRAME (frame58), GTK_SHADOW_ETCHED_OUT);
+ 
+-  vbox52 = gtk_vbox_new (FALSE, 0);
++  vbox52 = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
+   gtk_widget_show (vbox52);
+   gtk_container_add (GTK_CONTAINER (frame58), vbox52);
+ 
+-  hbox64 = gtk_hbox_new (FALSE, 0);
++  hbox64 = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
+   gtk_widget_show (hbox64);
+   gtk_box_pack_start (GTK_BOX (vbox52), hbox64, TRUE, TRUE, 0);
+ 
+@@ -1422,7 +1422,7 @@ create_Consumables_dialog (void)
+   gtk_box_pack_start (GTK_BOX (hbox64), ConsumablesDlg_CyanTonerAmmount_label, TRUE, TRUE, 0);
+   gtk_misc_set_alignment (GTK_MISC (ConsumablesDlg_CyanTonerAmmount_label), 0, 0.5);
+ 
+-  hbox65 = gtk_hbox_new (FALSE, 0);
++  hbox65 = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
+   gtk_widget_show (hbox65);
+   gtk_box_pack_start (GTK_BOX (vbox52), hbox65, TRUE, TRUE, 0);
+ 
+@@ -1438,7 +1438,7 @@ create_Consumables_dialog (void)
+   gtk_box_pack_start (GTK_BOX (hbox65), ConsumablesDlg_MagentaTonerAmmount_label, TRUE, TRUE, 0);
+   gtk_misc_set_alignment (GTK_MISC (ConsumablesDlg_MagentaTonerAmmount_label), 0, 0.5);
+ 
+-  hbox66 = gtk_hbox_new (FALSE, 0);
++  hbox66 = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
+   gtk_widget_show (hbox66);
+   gtk_box_pack_start (GTK_BOX (vbox52), hbox66, TRUE, TRUE, 0);
+ 
+@@ -1454,7 +1454,7 @@ create_Consumables_dialog (void)
+   gtk_box_pack_start (GTK_BOX (hbox66), ConsumablesDlg_YellowTonerAmmount_label, TRUE, TRUE, 0);
+   gtk_misc_set_alignment (GTK_MISC (ConsumablesDlg_YellowTonerAmmount_label), 0, 0.5);
+ 
+-  hbox67 = gtk_hbox_new (FALSE, 0);
++  hbox67 = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
+   gtk_widget_show (hbox67);
+   gtk_box_pack_start (GTK_BOX (vbox52), hbox67, TRUE, TRUE, 0);
+ 
+@@ -1475,7 +1475,7 @@ create_Consumables_dialog (void)
+   gtk_frame_set_label_widget (GTK_FRAME (frame58), ConsumablesDlg_TonerCartridge_label);
+   gtk_label_set_use_markup (GTK_LABEL (ConsumablesDlg_TonerCartridge_label), TRUE);
+ 
+-  ConsumablesDlg_Type2_box = gtk_vbox_new (FALSE, 0);
++  ConsumablesDlg_Type2_box = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
+   gtk_widget_show (ConsumablesDlg_Type2_box);
+   gtk_box_pack_start (GTK_BOX (vbox48), ConsumablesDlg_Type2_box, TRUE, TRUE, 0);
+ 
+@@ -1485,11 +1485,11 @@ create_Consumables_dialog (void)
+   gtk_widget_set_size_request (ConsumablesDlg2_TonerCartridge_label, 530, -1);
+   gtk_label_set_line_wrap (GTK_LABEL (ConsumablesDlg2_TonerCartridge_label), TRUE);
+ 
+-  ConsumablesDlg2_BlackToner_box = gtk_vbox_new (FALSE, 0);
++  ConsumablesDlg2_BlackToner_box = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
+   gtk_widget_show (ConsumablesDlg2_BlackToner_box);
+   gtk_box_pack_start (GTK_BOX (ConsumablesDlg_Type2_box), ConsumablesDlg2_BlackToner_box, TRUE, TRUE, 0);
+ 
+-  ConsumablesDlg2_BlackTonerRemaining_box = gtk_hbox_new (TRUE, 0);
++  ConsumablesDlg2_BlackTonerRemaining_box = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
+   gtk_widget_show (ConsumablesDlg2_BlackTonerRemaining_box);
+   gtk_box_pack_start (GTK_BOX (ConsumablesDlg2_BlackToner_box), ConsumablesDlg2_BlackTonerRemaining_box, FALSE, TRUE, 0);
+   gtk_widget_set_size_request (ConsumablesDlg2_BlackTonerRemaining_box, 506, -1);
+@@ -1572,7 +1572,7 @@ create_Consumables_dialog (void)
+   gtk_label_set_line_wrap (GTK_LABEL (ConsumablesDlg2_InformationTitle2_label), TRUE);
+   gtk_misc_set_padding (GTK_MISC (ConsumablesDlg2_InformationTitle2_label), 20, 0);
+ 
+-  ConsumablesDlg2_BlackCartridge_box = gtk_hbox_new (TRUE, 0);
++  ConsumablesDlg2_BlackCartridge_box = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
+   gtk_widget_show (ConsumablesDlg2_BlackCartridge_box);
+   gtk_box_pack_start (GTK_BOX (ConsumablesDlg_Type2_box), ConsumablesDlg2_BlackCartridge_box, FALSE, TRUE, 0);
+   gtk_widget_set_size_request (ConsumablesDlg2_BlackCartridge_box, 506, -1);
+@@ -1592,7 +1592,7 @@ create_Consumables_dialog (void)
+   gtk_widget_set_size_request (ConsumablesDlg2_InformationText_label, 506, -1);
+   gtk_label_set_line_wrap (GTK_LABEL (ConsumablesDlg2_InformationText_label), TRUE);
+ 
+-  ConsumablesDlg_Type3_box = gtk_vbox_new (FALSE, 0);
++  ConsumablesDlg_Type3_box = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
+   gtk_widget_show (ConsumablesDlg_Type3_box);
+   gtk_box_pack_start (GTK_BOX (vbox48), ConsumablesDlg_Type3_box, TRUE, TRUE, 0);
+ 
+@@ -1601,15 +1601,15 @@ create_Consumables_dialog (void)
+   gtk_box_pack_start (GTK_BOX (ConsumablesDlg_Type3_box), frame78, FALSE, TRUE, 0);
+   gtk_frame_set_shadow_type (GTK_FRAME (frame78), GTK_SHADOW_ETCHED_OUT);
+ 
+-  vbox81 = gtk_vbox_new (FALSE, 0);
++  vbox81 = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
+   gtk_widget_show (vbox81);
+   gtk_container_add (GTK_CONTAINER (frame78), vbox81);
+ 
+-  ConsumablesDlg3_Toner_box = gtk_vbox_new (FALSE, 0);
++  ConsumablesDlg3_Toner_box = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
+   gtk_widget_show (ConsumablesDlg3_Toner_box);
+   gtk_box_pack_start (GTK_BOX (vbox81), ConsumablesDlg3_Toner_box, TRUE, TRUE, 0);
+ 
+-  hbox87 = gtk_hbox_new (TRUE, 0);
++  hbox87 = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
+   gtk_widget_show (hbox87);
+   gtk_box_pack_start (GTK_BOX (ConsumablesDlg3_Toner_box), hbox87, FALSE, TRUE, 0);
+   gtk_widget_set_size_request (hbox87, 506, -1);
+@@ -1631,7 +1631,7 @@ create_Consumables_dialog (void)
+   gtk_box_pack_start (GTK_BOX (hbox87), label206, FALSE, TRUE, 0);
+   gtk_misc_set_alignment (GTK_MISC (label206), 0, 0.5);
+ 
+-  hbox95 = gtk_hbox_new (FALSE, 0);
++  hbox95 = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
+   gtk_widget_show (hbox95);
+   gtk_box_pack_start (GTK_BOX (ConsumablesDlg3_Toner_box), hbox95, FALSE, TRUE, 0);
+ 
+@@ -1646,11 +1646,11 @@ create_Consumables_dialog (void)
+   gtk_widget_set_size_request (ConsumablesDlg3_TonerAmount_label, 351, -1);
+   gtk_misc_set_alignment (GTK_MISC (ConsumablesDlg3_TonerAmount_label), 0, 0.5);
+ 
+-  ConsumablesDlg3_Drum_box = gtk_vbox_new (FALSE, 0);
++  ConsumablesDlg3_Drum_box = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
+   gtk_widget_show (ConsumablesDlg3_Drum_box);
+   gtk_box_pack_start (GTK_BOX (vbox81), ConsumablesDlg3_Drum_box, TRUE, TRUE, 0);
+ 
+-  hbox88 = gtk_hbox_new (TRUE, 0);
++  hbox88 = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
+   gtk_widget_show (hbox88);
+   gtk_box_pack_start (GTK_BOX (ConsumablesDlg3_Drum_box), hbox88, FALSE, TRUE, 0);
+   gtk_widget_set_size_request (hbox88, 506, -1);
+@@ -1672,7 +1672,7 @@ create_Consumables_dialog (void)
+   gtk_box_pack_start (GTK_BOX (hbox88), label210, FALSE, TRUE, 0);
+   gtk_misc_set_alignment (GTK_MISC (label210), 0, 0.5);
+ 
+-  hbox96 = gtk_hbox_new (FALSE, 0);
++  hbox96 = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
+   gtk_widget_show (hbox96);
+   gtk_box_pack_start (GTK_BOX (ConsumablesDlg3_Drum_box), hbox96, FALSE, TRUE, 0);
+ 
+@@ -1739,11 +1739,11 @@ create_Consumables_dialog (void)
+   gtk_box_pack_start (GTK_BOX (ConsumablesDlg_Type3_box), frame79, FALSE, TRUE, 0);
+   gtk_frame_set_shadow_type (GTK_FRAME (frame79), GTK_SHADOW_ETCHED_OUT);
+ 
+-  vbox84 = gtk_vbox_new (FALSE, 0);
++  vbox84 = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
+   gtk_widget_show (vbox84);
+   gtk_container_add (GTK_CONTAINER (frame79), vbox84);
+ 
+-  ConsumablesDlg3_TonerCartridge_box = gtk_hbox_new (TRUE, 0);
++  ConsumablesDlg3_TonerCartridge_box = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
+   gtk_widget_show (ConsumablesDlg3_TonerCartridge_box);
+   gtk_box_pack_start (GTK_BOX (vbox84), ConsumablesDlg3_TonerCartridge_box, TRUE, TRUE, 0);
+   gtk_widget_set_size_request (ConsumablesDlg3_TonerCartridge_box, 506, -1);
+@@ -1757,7 +1757,7 @@ create_Consumables_dialog (void)
+   gtk_box_pack_start (GTK_BOX (ConsumablesDlg3_TonerCartridge_box), ConsumablesDlg3_TonerCartridgeName_label, FALSE, TRUE, 0);
+   gtk_misc_set_alignment (GTK_MISC (ConsumablesDlg3_TonerCartridgeName_label), 0, 0.5);
+ 
+-  ConsumablesDlg3_DrumCartridge_box = gtk_hbox_new (TRUE, 0);
++  ConsumablesDlg3_DrumCartridge_box = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
+   gtk_widget_show (ConsumablesDlg3_DrumCartridge_box);
+   gtk_box_pack_start (GTK_BOX (vbox84), ConsumablesDlg3_DrumCartridge_box, TRUE, TRUE, 0);
+   gtk_widget_set_size_request (ConsumablesDlg3_DrumCartridge_box, 506, -1);
+@@ -1789,7 +1789,7 @@ create_Consumables_dialog (void)
+   gtk_widget_set_size_request (label197, 506, -1);
+   gtk_label_set_line_wrap (GTK_LABEL (label197), TRUE);
+ 
+-  ConsumablesDlg_Type4_box = gtk_vbox_new (FALSE, 0);
++  ConsumablesDlg_Type4_box = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
+   gtk_widget_show (ConsumablesDlg_Type4_box);
+   gtk_box_pack_start (GTK_BOX (vbox48), ConsumablesDlg_Type4_box, TRUE, TRUE, 0);
+ 
+@@ -1798,15 +1798,15 @@ create_Consumables_dialog (void)
+   gtk_box_pack_start (GTK_BOX (ConsumablesDlg_Type4_box), frame80, FALSE, TRUE, 0);
+   gtk_frame_set_shadow_type (GTK_FRAME (frame80), GTK_SHADOW_ETCHED_OUT);
+ 
+-  vbox86 = gtk_vbox_new (FALSE, 0);
++  vbox86 = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
+   gtk_widget_show (vbox86);
+   gtk_container_add (GTK_CONTAINER (frame80), vbox86);
+ 
+-  ConsumablesDlg4_Toner_box = gtk_vbox_new (FALSE, 0);
++  ConsumablesDlg4_Toner_box = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
+   gtk_widget_show (ConsumablesDlg4_Toner_box);
+   gtk_box_pack_start (GTK_BOX (vbox86), ConsumablesDlg4_Toner_box, TRUE, TRUE, 0);
+ 
+-  hbox91 = gtk_hbox_new (TRUE, 0);
++  hbox91 = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
+   gtk_widget_show (hbox91);
+   gtk_box_pack_start (GTK_BOX (ConsumablesDlg4_Toner_box), hbox91, FALSE, TRUE, 0);
+   gtk_widget_set_size_request (hbox91, 506, -1);
+@@ -1826,7 +1826,7 @@ create_Consumables_dialog (void)
+   gtk_widget_show (label218);
+   gtk_box_pack_start (GTK_BOX (hbox91), label218, FALSE, FALSE, 0);
+ 
+-  hbox93 = gtk_hbox_new (FALSE, 0);
++  hbox93 = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
+   gtk_widget_show (hbox93);
+   gtk_box_pack_start (GTK_BOX (ConsumablesDlg4_Toner_box), hbox93, FALSE, TRUE, 0);
+ 
+@@ -1841,11 +1841,11 @@ create_Consumables_dialog (void)
+   gtk_widget_set_size_request (ConsumablesDlg4_TonerAmount_label, 351, -1);
+   gtk_misc_set_alignment (GTK_MISC (ConsumablesDlg4_TonerAmount_label), 0, 0.5);
+ 
+-  ConsumablesDlg4_Drum_box = gtk_vbox_new (FALSE, 0);
++  ConsumablesDlg4_Drum_box = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
+   gtk_widget_show (ConsumablesDlg4_Drum_box);
+   gtk_box_pack_start (GTK_BOX (vbox86), ConsumablesDlg4_Drum_box, TRUE, TRUE, 0);
+ 
+-  hbox92 = gtk_hbox_new (TRUE, 0);
++  hbox92 = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
+   gtk_widget_show (hbox92);
+   gtk_box_pack_start (GTK_BOX (ConsumablesDlg4_Drum_box), hbox92, FALSE, TRUE, 0);
+   gtk_widget_set_size_request (hbox92, 506, -1);
+@@ -1867,7 +1867,7 @@ create_Consumables_dialog (void)
+   gtk_box_pack_start (GTK_BOX (hbox92), label222, FALSE, TRUE, 0);
+   gtk_misc_set_alignment (GTK_MISC (label222), 0, 0.5);
+ 
+-  hbox94 = gtk_hbox_new (FALSE, 0);
++  hbox94 = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
+   gtk_widget_show (hbox94);
+   gtk_box_pack_start (GTK_BOX (ConsumablesDlg4_Drum_box), hbox94, FALSE, TRUE, 0);
+ 
+@@ -1934,11 +1934,11 @@ create_Consumables_dialog (void)
+   gtk_box_pack_start (GTK_BOX (ConsumablesDlg_Type4_box), frame81, FALSE, TRUE, 0);
+   gtk_frame_set_shadow_type (GTK_FRAME (frame81), GTK_SHADOW_ETCHED_OUT);
+ 
+-  vbox89 = gtk_vbox_new (FALSE, 0);
++  vbox89 = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
+   gtk_widget_show (vbox89);
+   gtk_container_add (GTK_CONTAINER (frame81), vbox89);
+ 
+-  ConsumablesDlg4_TonerCartridge_box = gtk_hbox_new (TRUE, 0);
++  ConsumablesDlg4_TonerCartridge_box = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
+   gtk_widget_show (ConsumablesDlg4_TonerCartridge_box);
+   gtk_box_pack_start (GTK_BOX (vbox89), ConsumablesDlg4_TonerCartridge_box, TRUE, TRUE, 0);
+   gtk_widget_set_size_request (ConsumablesDlg4_TonerCartridge_box, 506, -1);
+@@ -1952,7 +1952,7 @@ create_Consumables_dialog (void)
+   gtk_box_pack_start (GTK_BOX (ConsumablesDlg4_TonerCartridge_box), ConsumablesDlg4_TonerCartridgeName_label, FALSE, TRUE, 0);
+   gtk_misc_set_alignment (GTK_MISC (ConsumablesDlg4_TonerCartridgeName_label), 0, 0.5);
+ 
+-  ConsumablesDlg4_DrumCartridge_box = gtk_hbox_new (TRUE, 0);
++  ConsumablesDlg4_DrumCartridge_box = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
+   gtk_widget_show (ConsumablesDlg4_DrumCartridge_box);
+   gtk_box_pack_start (GTK_BOX (vbox89), ConsumablesDlg4_DrumCartridge_box, TRUE, TRUE, 0);
+   gtk_widget_set_size_request (ConsumablesDlg4_DrumCartridge_box, 506, -1);
+@@ -1984,11 +1984,11 @@ create_Consumables_dialog (void)
+   gtk_widget_set_size_request (label238, 506, -1);
+   gtk_label_set_line_wrap (GTK_LABEL (label238), TRUE);
+ 
+-  hbuttonbox15 = GTK_DIALOG (Consumables_dialog)->action_area;
++  hbuttonbox15 = gtk_dialog_get_action_area (GTK_DIALOG (Consumables_dialog));
+   gtk_widget_show (hbuttonbox15);
+   gtk_button_box_set_layout (GTK_BUTTON_BOX (hbuttonbox15), GTK_BUTTONBOX_END);
+ 
+-  hbuttonbox16 = gtk_hbutton_box_new ();
++  hbuttonbox16 = gtk_button_box_new (GTK_ORIENTATION_HORIZONTAL);
+   gtk_widget_show (hbuttonbox16);
+   gtk_container_add (GTK_CONTAINER (hbuttonbox15), hbuttonbox16);
+   gtk_button_box_set_layout (GTK_BUTTON_BOX (hbuttonbox16), GTK_BUTTONBOX_END);
+@@ -1996,7 +1996,7 @@ create_Consumables_dialog (void)
+   ConsumablesDlg_OK_button = gtk_button_new_with_mnemonic (_("OK"));
+   gtk_widget_show (ConsumablesDlg_OK_button);
+   gtk_container_add (GTK_CONTAINER (hbuttonbox16), ConsumablesDlg_OK_button);
+-  GTK_WIDGET_SET_FLAGS (ConsumablesDlg_OK_button, GTK_CAN_DEFAULT);
++  gtk_widget_set_can_default (ConsumablesDlg_OK_button, TRUE);
+ 
+   g_signal_connect ((gpointer) Consumables_dialog, "delete_event",
+                     G_CALLBACK (on_ConsumablesDlg_delete_event),
+@@ -2173,10 +2173,10 @@ create_Counter_dialog (void)
+   gtk_window_set_resizable (GTK_WINDOW (Counter_dialog), FALSE);
+   gtk_window_set_type_hint (GTK_WINDOW (Counter_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
+ 
+-  vbox50 = GTK_DIALOG (Counter_dialog)->vbox;
++  vbox50 = gtk_dialog_get_content_area (GTK_DIALOG (Counter_dialog));
+   gtk_widget_show (vbox50);
+ 
+-  vbox51 = gtk_vbox_new (FALSE, 0);
++  vbox51 = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
+   gtk_widget_show (vbox51);
+   gtk_box_pack_start (GTK_BOX (vbox50), vbox51, TRUE, TRUE, 0);
+ 
+@@ -2186,11 +2186,11 @@ create_Counter_dialog (void)
+   gtk_container_set_border_width (GTK_CONTAINER (frame59), 7);
+   gtk_frame_set_shadow_type (GTK_FRAME (frame59), GTK_SHADOW_ETCHED_OUT);
+ 
+-  vbox53 = gtk_vbox_new (FALSE, 0);
++  vbox53 = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
+   gtk_widget_show (vbox53);
+   gtk_container_add (GTK_CONTAINER (frame59), vbox53);
+ 
+-  hbox68 = gtk_hbox_new (FALSE, 0);
++  hbox68 = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
+   gtk_widget_show (hbox68);
+   gtk_box_pack_start (GTK_BOX (vbox53), hbox68, TRUE, TRUE, 0);
+ 
+@@ -2214,7 +2214,7 @@ create_Counter_dialog (void)
+   gtk_misc_set_alignment (GTK_MISC (CounterDlg_TotalPrintedPagesUnit_label), 0, 0.5);
+   gtk_misc_set_padding (GTK_MISC (CounterDlg_TotalPrintedPagesUnit_label), 5, 0);
+ 
+-  CounterDlg_TotalMonoPrintedPagesInfo_box = gtk_hbox_new (FALSE, 0);
++  CounterDlg_TotalMonoPrintedPagesInfo_box = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
+   gtk_widget_show (CounterDlg_TotalMonoPrintedPagesInfo_box);
+   gtk_box_pack_start (GTK_BOX (vbox53), CounterDlg_TotalMonoPrintedPagesInfo_box, TRUE, TRUE, 0);
+ 
+@@ -2238,7 +2238,7 @@ create_Counter_dialog (void)
+   gtk_misc_set_alignment (GTK_MISC (CounterDlg_TotalMonoPrintedPagesUnit_label), 0, 0.5);
+   gtk_misc_set_padding (GTK_MISC (CounterDlg_TotalMonoPrintedPagesUnit_label), 5, 0);
+ 
+-  hbox69 = gtk_hbox_new (FALSE, 0);
++  hbox69 = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
+   gtk_widget_show (hbox69);
+   gtk_box_pack_start (GTK_BOX (vbox53), hbox69, TRUE, TRUE, 0);
+ 
+@@ -2262,7 +2262,7 @@ create_Counter_dialog (void)
+   gtk_misc_set_alignment (GTK_MISC (CounterDlg_ColorPrintedPagesUnit_label), 0, 0.5);
+   gtk_misc_set_padding (GTK_MISC (CounterDlg_ColorPrintedPagesUnit_label), 5, 0);
+ 
+-  hbox70 = gtk_hbox_new (FALSE, 0);
++  hbox70 = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
+   gtk_widget_show (hbox70);
+   gtk_box_pack_start (GTK_BOX (vbox53), hbox70, TRUE, TRUE, 0);
+ 
+@@ -2286,7 +2286,7 @@ create_Counter_dialog (void)
+   gtk_misc_set_alignment (GTK_MISC (CounterDlg_MonoPrintedPagesUnit_label), 0, 0.5);
+   gtk_misc_set_padding (GTK_MISC (CounterDlg_MonoPrintedPagesUnit_label), 5, 0);
+ 
+-  CounterDlg_TwoSidedPrintedSheets_box = gtk_hbox_new (FALSE, 0);
++  CounterDlg_TwoSidedPrintedSheets_box = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
+   gtk_widget_show (CounterDlg_TwoSidedPrintedSheets_box);
+   gtk_box_pack_start (GTK_BOX (vbox53), CounterDlg_TwoSidedPrintedSheets_box, TRUE, TRUE, 0);
+ 
+@@ -2315,11 +2315,11 @@ create_Counter_dialog (void)
+   gtk_frame_set_label_widget (GTK_FRAME (frame59), CounterDlg_CounterInfo_label);
+   gtk_label_set_use_markup (GTK_LABEL (CounterDlg_CounterInfo_label), TRUE);
+ 
+-  hbuttonbox17 = GTK_DIALOG (Counter_dialog)->action_area;
++  hbuttonbox17 = gtk_dialog_get_action_area (GTK_DIALOG (Counter_dialog));
+   gtk_widget_show (hbuttonbox17);
+   gtk_button_box_set_layout (GTK_BUTTON_BOX (hbuttonbox17), GTK_BUTTONBOX_END);
+ 
+-  hbuttonbox18 = gtk_hbutton_box_new ();
++  hbuttonbox18 = gtk_button_box_new (GTK_ORIENTATION_HORIZONTAL);
+   gtk_widget_show (hbuttonbox18);
+   gtk_container_add (GTK_CONTAINER (hbuttonbox17), hbuttonbox18);
+   gtk_button_box_set_layout (GTK_BUTTON_BOX (hbuttonbox18), GTK_BUTTONBOX_END);
+@@ -2327,7 +2327,7 @@ create_Counter_dialog (void)
+   CounterDlg_OK_button = gtk_button_new_with_mnemonic (_("OK"));
+   gtk_widget_show (CounterDlg_OK_button);
+   gtk_container_add (GTK_CONTAINER (hbuttonbox18), CounterDlg_OK_button);
+-  GTK_WIDGET_SET_FLAGS (CounterDlg_OK_button, GTK_CAN_DEFAULT);
++  gtk_widget_set_can_default (CounterDlg_OK_button, TRUE);
+ 
+   g_signal_connect ((gpointer) Counter_dialog, "delete_event",
+                     G_CALLBACK (on_CounterDlg_delete_event),
+@@ -2407,7 +2407,7 @@ create_WLanStatus_dialog (void)
+   gtk_window_set_resizable (GTK_WINDOW (WLanStatus_dialog), FALSE);
+   gtk_window_set_type_hint (GTK_WINDOW (WLanStatus_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
+ 
+-  vbox54 = GTK_DIALOG (WLanStatus_dialog)->vbox;
++  vbox54 = gtk_dialog_get_content_area (GTK_DIALOG (WLanStatus_dialog));
+   gtk_widget_show (vbox54);
+ 
+   frame60 = gtk_frame_new (NULL);
+@@ -2416,7 +2416,7 @@ create_WLanStatus_dialog (void)
+   gtk_container_set_border_width (GTK_CONTAINER (frame60), 10);
+   gtk_frame_set_shadow_type (GTK_FRAME (frame60), GTK_SHADOW_NONE);
+ 
+-  hbox75 = gtk_hbox_new (FALSE, 0);
++  hbox75 = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
+   gtk_widget_show (hbox75);
+   gtk_container_add (GTK_CONTAINER (frame60), hbox75);
+ 
+@@ -2428,11 +2428,11 @@ create_WLanStatus_dialog (void)
+   gtk_widget_show (WLANStatus_Status);
+   gtk_box_pack_start (GTK_BOX (hbox75), WLANStatus_Status, FALSE, FALSE, 0);
+ 
+-  hbuttonbox19 = GTK_DIALOG (WLanStatus_dialog)->action_area;
++  hbuttonbox19 = gtk_dialog_get_action_area (GTK_DIALOG (WLanStatus_dialog));
+   gtk_widget_show (hbuttonbox19);
+   gtk_button_box_set_layout (GTK_BUTTON_BOX (hbuttonbox19), GTK_BUTTONBOX_END);
+ 
+-  hbuttonbox20 = gtk_hbutton_box_new ();
++  hbuttonbox20 = gtk_button_box_new (GTK_ORIENTATION_HORIZONTAL);
+   gtk_widget_show (hbuttonbox20);
+   gtk_container_add (GTK_CONTAINER (hbuttonbox19), hbuttonbox20);
+   gtk_button_box_set_layout (GTK_BUTTON_BOX (hbuttonbox20), GTK_BUTTONBOX_END);
+@@ -2440,7 +2440,7 @@ create_WLanStatus_dialog (void)
+   WLANStatusDlg_OK_button = gtk_button_new_with_mnemonic (_("OK"));
+   gtk_widget_show (WLANStatusDlg_OK_button);
+   gtk_container_add (GTK_CONTAINER (hbuttonbox20), WLANStatusDlg_OK_button);
+-  GTK_WIDGET_SET_FLAGS (WLANStatusDlg_OK_button, GTK_CAN_DEFAULT);
++  gtk_widget_set_can_default (WLANStatusDlg_OK_button, TRUE);
+ 
+   g_signal_connect ((gpointer) WLanStatus_dialog, "delete_event",
+                     G_CALLBACK (on_WLANStatusDlg_delete_event),
+@@ -2490,7 +2490,7 @@ create_AutoShutdown_dialog (void)
+   gtk_window_set_resizable (GTK_WINDOW (AutoShutdown_dialog), FALSE);
+   gtk_window_set_type_hint (GTK_WINDOW (AutoShutdown_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
+ 
+-  dialog_vbox10 = GTK_DIALOG (AutoShutdown_dialog)->vbox;
++  dialog_vbox10 = gtk_dialog_get_content_area (GTK_DIALOG (AutoShutdown_dialog));
+   gtk_widget_show (dialog_vbox10);
+ 
+   frame66 = gtk_frame_new (NULL);
+@@ -2499,7 +2499,7 @@ create_AutoShutdown_dialog (void)
+   gtk_container_set_border_width (GTK_CONTAINER (frame66), 5);
+   gtk_frame_set_shadow_type (GTK_FRAME (frame66), GTK_SHADOW_NONE);
+ 
+-  vbox51 = gtk_vbox_new (FALSE, 0);
++  vbox51 = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
+   gtk_widget_show (vbox51);
+   gtk_container_add (GTK_CONTAINER (frame66), vbox51);
+ 
+@@ -2508,7 +2508,7 @@ create_AutoShutdown_dialog (void)
+   gtk_box_pack_start (GTK_BOX (vbox51), AutoShutdownDlg_Use_checkbutton, FALSE, FALSE, 0);
+   gtk_widget_set_size_request (AutoShutdownDlg_Use_checkbutton, 360, -1);
+ 
+-  AutoShutdown_combo_area = gtk_hbox_new (FALSE, 0);
++  AutoShutdown_combo_area = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
+   gtk_widget_show (AutoShutdown_combo_area);
+   gtk_box_pack_start (GTK_BOX (vbox51), AutoShutdown_combo_area, TRUE, TRUE, 0);
+ 
+@@ -2518,7 +2518,7 @@ create_AutoShutdown_dialog (void)
+   gtk_label_set_justify (GTK_LABEL (AutoShutdown_Time_Label), GTK_JUSTIFY_CENTER);
+   gtk_misc_set_padding (GTK_MISC (AutoShutdown_Time_Label), 3, 0);
+ 
+-  AutoShutdownDlg_Time_combo = gtk_combo_box_new_text ();
++  AutoShutdownDlg_Time_combo = gtk_combo_box_text_new ();
+   gtk_widget_show (AutoShutdownDlg_Time_combo);
+   gtk_box_pack_start (GTK_BOX (AutoShutdown_combo_area), AutoShutdownDlg_Time_combo, FALSE, TRUE, 0);
+   gtk_widget_set_size_request (AutoShutdownDlg_Time_combo, 80, -1);
+@@ -2529,11 +2529,11 @@ create_AutoShutdown_dialog (void)
+   gtk_label_set_justify (GTK_LABEL (AutoShutdown_Time_Hr_Label), GTK_JUSTIFY_CENTER);
+   gtk_misc_set_padding (GTK_MISC (AutoShutdown_Time_Hr_Label), 3, 0);
+ 
+-  dialog_action_area10 = GTK_DIALOG (AutoShutdown_dialog)->action_area;
++  dialog_action_area10 = gtk_dialog_get_action_area (GTK_DIALOG (AutoShutdown_dialog));
+   gtk_widget_show (dialog_action_area10);
+   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area10), GTK_BUTTONBOX_END);
+ 
+-  hbuttonbox12 = gtk_hbutton_box_new ();
++  hbuttonbox12 = gtk_button_box_new (GTK_ORIENTATION_HORIZONTAL);
+   gtk_widget_show (hbuttonbox12);
+   gtk_container_add (GTK_CONTAINER (dialog_action_area10), hbuttonbox12);
+   gtk_button_box_set_layout (GTK_BUTTON_BOX (hbuttonbox12), GTK_BUTTONBOX_END);
+@@ -2541,12 +2541,12 @@ create_AutoShutdown_dialog (void)
+   AutoShutdownDlg_OK_button = gtk_button_new_with_mnemonic (_("OK"));
+   gtk_widget_show (AutoShutdownDlg_OK_button);
+   gtk_container_add (GTK_CONTAINER (hbuttonbox12), AutoShutdownDlg_OK_button);
+-  GTK_WIDGET_SET_FLAGS (AutoShutdownDlg_OK_button, GTK_CAN_DEFAULT);
++  gtk_widget_set_can_default (AutoShutdownDlg_OK_button, TRUE);
+ 
+   AutoShutdownDlg_Cancel_button = gtk_button_new_with_mnemonic (_("Cancel "));
+   gtk_widget_show (AutoShutdownDlg_Cancel_button);
+   gtk_container_add (GTK_CONTAINER (hbuttonbox12), AutoShutdownDlg_Cancel_button);
+-  GTK_WIDGET_SET_FLAGS (AutoShutdownDlg_Cancel_button, GTK_CAN_DEFAULT);
++  gtk_widget_set_can_default (AutoShutdownDlg_Cancel_button, TRUE);
+ 
+   g_signal_connect ((gpointer) AutoShutdown_dialog, "delete_event",
+                     G_CALLBACK (on_AutoShutdown_dialog_delete_event),
+@@ -2593,10 +2593,10 @@ create_ImgAdjust_dialog (void)
+   GtkWidget *ImgAdjustDlg_CalibEnable_checkbutton;
+   GtkWidget *ImgAdjustDlg_Time_hbox;
+   GtkWidget *ImgAdjustDlg_Time_Label;
+-  GtkObject *ImgAdjustDlg_TimeHour_spinbutton_adj;
++  GObject *ImgAdjustDlg_TimeHour_spinbutton_adj;
+   GtkWidget *ImgAdjustDlg_TimeHour_spinbutton;
+   GtkWidget *ImgAdjustDlg_Time_Colon_Label;
+-  GtkObject *ImgAdjustDlg_TimeMin_spinbutton_adj;
++  GObject *ImgAdjustDlg_TimeMin_spinbutton_adj;
+   GtkWidget *ImgAdjustDlg_TimeMin_spinbutton;
+   GtkWidget *ImgAdjustDlg_CalibStartup_hvox;
+   GtkWidget *ImgAdjustDlg_CalibStartup_Label;
+@@ -2613,7 +2613,7 @@ create_ImgAdjust_dialog (void)
+   gtk_window_set_resizable (GTK_WINDOW (ImgAdjust_dialog), FALSE);
+   gtk_window_set_type_hint (GTK_WINDOW (ImgAdjust_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
+ 
+-  vbox55 = GTK_DIALOG (ImgAdjust_dialog)->vbox;
++  vbox55 = gtk_dialog_get_content_area (GTK_DIALOG (ImgAdjust_dialog));
+   gtk_widget_show (vbox55);
+ 
+   frame61 = gtk_frame_new (NULL);
+@@ -2622,11 +2622,11 @@ create_ImgAdjust_dialog (void)
+   gtk_container_set_border_width (GTK_CONTAINER (frame61), 5);
+   gtk_frame_set_shadow_type (GTK_FRAME (frame61), GTK_SHADOW_NONE);
+ 
+-  vbox56 = gtk_vbox_new (FALSE, 0);
++  vbox56 = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
+   gtk_widget_show (vbox56);
+   gtk_container_add (GTK_CONTAINER (frame61), vbox56);
+ 
+-  ImgAdjustDlg_Calib_vbox = gtk_vbox_new (FALSE, 0);
++  ImgAdjustDlg_Calib_vbox = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
+   gtk_widget_show (ImgAdjustDlg_Calib_vbox);
+   gtk_box_pack_start (GTK_BOX (vbox56), ImgAdjustDlg_Calib_vbox, TRUE, TRUE, 0);
+ 
+@@ -2634,7 +2634,7 @@ create_ImgAdjust_dialog (void)
+   gtk_widget_show (ImgAdjustDlg_CalibEnable_checkbutton);
+   gtk_box_pack_start (GTK_BOX (ImgAdjustDlg_Calib_vbox), ImgAdjustDlg_CalibEnable_checkbutton, FALSE, FALSE, 0);
+ 
+-  ImgAdjustDlg_Time_hbox = gtk_hbox_new (FALSE, 0);
++  ImgAdjustDlg_Time_hbox = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
+   gtk_widget_show (ImgAdjustDlg_Time_hbox);
+   gtk_box_pack_start (GTK_BOX (ImgAdjustDlg_Calib_vbox), ImgAdjustDlg_Time_hbox, TRUE, TRUE, 0);
+ 
+@@ -2643,7 +2643,7 @@ create_ImgAdjust_dialog (void)
+   gtk_box_pack_start (GTK_BOX (ImgAdjustDlg_Time_hbox), ImgAdjustDlg_Time_Label, FALSE, FALSE, 0);
+   gtk_misc_set_padding (GTK_MISC (ImgAdjustDlg_Time_Label), 23, 0);
+ 
+-  ImgAdjustDlg_TimeHour_spinbutton_adj = gtk_adjustment_new (1, 0, 23, 1, 0, 0);
++  ImgAdjustDlg_TimeHour_spinbutton_adj = (GObject *)gtk_adjustment_new (1, 0, 23, 1, 0, 0);
+   ImgAdjustDlg_TimeHour_spinbutton = gtk_spin_button_new (GTK_ADJUSTMENT (ImgAdjustDlg_TimeHour_spinbutton_adj), 1, 0);
+   gtk_widget_show (ImgAdjustDlg_TimeHour_spinbutton);
+   gtk_box_pack_start (GTK_BOX (ImgAdjustDlg_Time_hbox), ImgAdjustDlg_TimeHour_spinbutton, FALSE, TRUE, 0);
+@@ -2652,12 +2652,12 @@ create_ImgAdjust_dialog (void)
+   gtk_widget_show (ImgAdjustDlg_Time_Colon_Label);
+   gtk_box_pack_start (GTK_BOX (ImgAdjustDlg_Time_hbox), ImgAdjustDlg_Time_Colon_Label, FALSE, FALSE, 4);
+ 
+-  ImgAdjustDlg_TimeMin_spinbutton_adj = gtk_adjustment_new (1, 0, 59, 1, 0, 0);
++  ImgAdjustDlg_TimeMin_spinbutton_adj = (GObject *)gtk_adjustment_new (1, 0, 59, 1, 0, 0);
+   ImgAdjustDlg_TimeMin_spinbutton = gtk_spin_button_new (GTK_ADJUSTMENT (ImgAdjustDlg_TimeMin_spinbutton_adj), 1, 0);
+   gtk_widget_show (ImgAdjustDlg_TimeMin_spinbutton);
+   gtk_box_pack_start (GTK_BOX (ImgAdjustDlg_Time_hbox), ImgAdjustDlg_TimeMin_spinbutton, FALSE, TRUE, 0);
+ 
+-  ImgAdjustDlg_CalibStartup_hvox = gtk_hbox_new (FALSE, 0);
++  ImgAdjustDlg_CalibStartup_hvox = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
+   gtk_widget_show (ImgAdjustDlg_CalibStartup_hvox);
+   gtk_box_pack_start (GTK_BOX (vbox56), ImgAdjustDlg_CalibStartup_hvox, TRUE, TRUE, 0);
+ 
+@@ -2667,15 +2667,15 @@ create_ImgAdjust_dialog (void)
+   gtk_label_set_justify (GTK_LABEL (ImgAdjustDlg_CalibStartup_Label), GTK_JUSTIFY_CENTER);
+   gtk_misc_set_padding (GTK_MISC (ImgAdjustDlg_CalibStartup_Label), 3, 0);
+ 
+-  ImgAdjustDlg_CalibStartup_combo = gtk_combo_box_new_text ();
++  ImgAdjustDlg_CalibStartup_combo = gtk_combo_box_text_new ();
+   gtk_widget_show (ImgAdjustDlg_CalibStartup_combo);
+   gtk_box_pack_start (GTK_BOX (ImgAdjustDlg_CalibStartup_hvox), ImgAdjustDlg_CalibStartup_combo, TRUE, TRUE, 0);
+ 
+-  hbuttonbox21 = GTK_DIALOG (ImgAdjust_dialog)->action_area;
++  hbuttonbox21 = gtk_dialog_get_action_area (GTK_DIALOG (ImgAdjust_dialog));
+   gtk_widget_show (hbuttonbox21);
+   gtk_button_box_set_layout (GTK_BUTTON_BOX (hbuttonbox21), GTK_BUTTONBOX_END);
+ 
+-  hbuttonbox22 = gtk_hbutton_box_new ();
++  hbuttonbox22 = gtk_button_box_new (GTK_ORIENTATION_HORIZONTAL);
+   gtk_widget_show (hbuttonbox22);
+   gtk_container_add (GTK_CONTAINER (hbuttonbox21), hbuttonbox22);
+   gtk_button_box_set_layout (GTK_BUTTON_BOX (hbuttonbox22), GTK_BUTTONBOX_END);
+@@ -2683,12 +2683,12 @@ create_ImgAdjust_dialog (void)
+   button1 = gtk_button_new_with_mnemonic (_("OK"));
+   gtk_widget_show (button1);
+   gtk_container_add (GTK_CONTAINER (hbuttonbox22), button1);
+-  GTK_WIDGET_SET_FLAGS (button1, GTK_CAN_DEFAULT);
++  gtk_widget_set_can_default (button1, TRUE);
+ 
+   button2 = gtk_button_new_with_mnemonic (_("Cancel "));
+   gtk_widget_show (button2);
+   gtk_container_add (GTK_CONTAINER (hbuttonbox22), button2);
+-  GTK_WIDGET_SET_FLAGS (button2, GTK_CAN_DEFAULT);
++  gtk_widget_set_can_default (button2, TRUE);
+ 
+   g_signal_connect ((gpointer) ImgAdjust_dialog, "delete_event",
+                     G_CALLBACK (on_ImgAdjust_dialog_delete_event),
+@@ -2842,7 +2842,7 @@ create_PFeedUnit_dialog (void)
+   gtk_window_set_resizable (GTK_WINDOW (PFeedUnit_dialog), FALSE);
+   gtk_window_set_type_hint (GTK_WINDOW (PFeedUnit_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
+ 
+-  PFeedUnitDlg_vbox = GTK_DIALOG (PFeedUnit_dialog)->vbox;
++  PFeedUnitDlg_vbox = gtk_dialog_get_content_area (GTK_DIALOG (PFeedUnit_dialog));
+   gtk_widget_show (PFeedUnitDlg_vbox);
+ 
+   PFeedUnitDlg_table = gtk_table_new (4, 2, FALSE);
+@@ -2862,7 +2862,7 @@ create_PFeedUnit_dialog (void)
+   gtk_container_add (GTK_CONTAINER (PFeedUnitDlg_AutoSelectframe), PFeedUnitDlg_AutoSelectalignment);
+   gtk_alignment_set_padding (GTK_ALIGNMENT (PFeedUnitDlg_AutoSelectalignment), 0, 0, 12, 0);
+ 
+-  PFeedUnitDlg_AutoSelect_vBox = gtk_vbox_new (TRUE, 0);
++  PFeedUnitDlg_AutoSelect_vBox = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
+   gtk_widget_show (PFeedUnitDlg_AutoSelect_vBox);
+   gtk_container_add (GTK_CONTAINER (PFeedUnitDlg_AutoSelectalignment), PFeedUnitDlg_AutoSelect_vBox);
+ 
+@@ -2905,11 +2905,11 @@ create_PFeedUnit_dialog (void)
+   gtk_container_set_border_width (GTK_CONTAINER (PFeedUnitDlg_CS4PSWalignment), 5);
+   gtk_alignment_set_padding (GTK_ALIGNMENT (PFeedUnitDlg_CS4PSWalignment), 0, 0, 5, 5);
+ 
+-  PFeedUnitDlg_CS4PSW_vBox = gtk_vbox_new (TRUE, 0);
++  PFeedUnitDlg_CS4PSW_vBox = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
+   gtk_widget_show (PFeedUnitDlg_CS4PSW_vBox);
+   gtk_container_add (GTK_CONTAINER (PFeedUnitDlg_CS4PSWalignment), PFeedUnitDlg_CS4PSW_vBox);
+ 
+-  PFeedUnitDlg_CS4PSWSize_box = gtk_hbox_new (TRUE, 5);
++  PFeedUnitDlg_CS4PSWSize_box = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 5);
+   gtk_widget_show (PFeedUnitDlg_CS4PSWSize_box);
+   gtk_box_pack_start (GTK_BOX (PFeedUnitDlg_CS4PSW_vBox), PFeedUnitDlg_CS4PSWSize_box, TRUE, TRUE, 0);
+ 
+@@ -2918,11 +2918,11 @@ create_PFeedUnit_dialog (void)
+   gtk_box_pack_start (GTK_BOX (PFeedUnitDlg_CS4PSWSize_box), PFeedUnitDlg_CS4PSWSize_label, TRUE, TRUE, 0);
+   gtk_misc_set_alignment (GTK_MISC (PFeedUnitDlg_CS4PSWSize_label), 0, 0.5);
+ 
+-  PFeedUnitDlg_CS4PSWSize_combo = gtk_combo_box_new_text ();
++  PFeedUnitDlg_CS4PSWSize_combo = gtk_combo_box_text_new ();
+   gtk_widget_show (PFeedUnitDlg_CS4PSWSize_combo);
+   gtk_box_pack_start (GTK_BOX (PFeedUnitDlg_CS4PSWSize_box), PFeedUnitDlg_CS4PSWSize_combo, TRUE, TRUE, 0);
+ 
+-  PFeedUnitDlg_CS4PSWFeed_box = gtk_hbox_new (TRUE, 5);
++  PFeedUnitDlg_CS4PSWFeed_box = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 5);
+   gtk_widget_show (PFeedUnitDlg_CS4PSWFeed_box);
+   gtk_box_pack_start (GTK_BOX (PFeedUnitDlg_CS4PSW_vBox), PFeedUnitDlg_CS4PSWFeed_box, TRUE, TRUE, 0);
+ 
+@@ -2931,11 +2931,11 @@ create_PFeedUnit_dialog (void)
+   gtk_box_pack_start (GTK_BOX (PFeedUnitDlg_CS4PSWFeed_box), PFeedUnitDlg_CS4PSWFeed_label, TRUE, TRUE, 0);
+   gtk_misc_set_alignment (GTK_MISC (PFeedUnitDlg_CS4PSWFeed_label), 0, 0.5);
+ 
+-  PFeedUnitDlg_CS4PSWFeed_combo = gtk_combo_box_new_text ();
++  PFeedUnitDlg_CS4PSWFeed_combo = gtk_combo_box_text_new ();
+   gtk_widget_show (PFeedUnitDlg_CS4PSWFeed_combo);
+   gtk_box_pack_start (GTK_BOX (PFeedUnitDlg_CS4PSWFeed_box), PFeedUnitDlg_CS4PSWFeed_combo, TRUE, TRUE, 0);
+ 
+-  PFeedUnitDlg_CS4PSWType_box = gtk_hbox_new (TRUE, 5);
++  PFeedUnitDlg_CS4PSWType_box = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 5);
+   gtk_widget_show (PFeedUnitDlg_CS4PSWType_box);
+   gtk_box_pack_start (GTK_BOX (PFeedUnitDlg_CS4PSW_vBox), PFeedUnitDlg_CS4PSWType_box, TRUE, TRUE, 0);
+ 
+@@ -2944,7 +2944,7 @@ create_PFeedUnit_dialog (void)
+   gtk_box_pack_start (GTK_BOX (PFeedUnitDlg_CS4PSWType_box), PFeedUnitDlg_CS4PSWType_label, TRUE, TRUE, 0);
+   gtk_misc_set_alignment (GTK_MISC (PFeedUnitDlg_CS4PSWType_label), 0, 0.5);
+ 
+-  PFeedUnitDlg_CS4PSWType_combo = gtk_combo_box_new_text ();
++  PFeedUnitDlg_CS4PSWType_combo = gtk_combo_box_text_new ();
+   gtk_widget_show (PFeedUnitDlg_CS4PSWType_combo);
+   gtk_box_pack_start (GTK_BOX (PFeedUnitDlg_CS4PSWType_box), PFeedUnitDlg_CS4PSWType_combo, TRUE, TRUE, 0);
+ 
+@@ -2966,11 +2966,11 @@ create_PFeedUnit_dialog (void)
+   gtk_container_set_border_width (GTK_CONTAINER (PFeedUnitDlg_CS1alignment), 5);
+   gtk_alignment_set_padding (GTK_ALIGNMENT (PFeedUnitDlg_CS1alignment), 0, 0, 5, 5);
+ 
+-  PFeedUnitDlg_CS1_vBox = gtk_vbox_new (TRUE, 0);
++  PFeedUnitDlg_CS1_vBox = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
+   gtk_widget_show (PFeedUnitDlg_CS1_vBox);
+   gtk_container_add (GTK_CONTAINER (PFeedUnitDlg_CS1alignment), PFeedUnitDlg_CS1_vBox);
+ 
+-  PFeedUnitDlg_CS1Size_box = gtk_hbox_new (TRUE, 5);
++  PFeedUnitDlg_CS1Size_box = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 5);
+   gtk_widget_show (PFeedUnitDlg_CS1Size_box);
+   gtk_box_pack_start (GTK_BOX (PFeedUnitDlg_CS1_vBox), PFeedUnitDlg_CS1Size_box, TRUE, TRUE, 0);
+ 
+@@ -2979,11 +2979,11 @@ create_PFeedUnit_dialog (void)
+   gtk_box_pack_start (GTK_BOX (PFeedUnitDlg_CS1Size_box), PFeedUnitDlg_CS1Size_label, TRUE, TRUE, 0);
+   gtk_misc_set_alignment (GTK_MISC (PFeedUnitDlg_CS1Size_label), 0, 0.5);
+ 
+-  PFeedUnitDlg_CS1Size_combo = gtk_combo_box_new_text ();
++  PFeedUnitDlg_CS1Size_combo = gtk_combo_box_text_new ();
+   gtk_widget_show (PFeedUnitDlg_CS1Size_combo);
+   gtk_box_pack_start (GTK_BOX (PFeedUnitDlg_CS1Size_box), PFeedUnitDlg_CS1Size_combo, TRUE, TRUE, 0);
+ 
+-  PFeedUnitDlg_CS1Feed_box = gtk_hbox_new (TRUE, 5);
++  PFeedUnitDlg_CS1Feed_box = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 5);
+   gtk_widget_show (PFeedUnitDlg_CS1Feed_box);
+   gtk_box_pack_start (GTK_BOX (PFeedUnitDlg_CS1_vBox), PFeedUnitDlg_CS1Feed_box, TRUE, TRUE, 0);
+ 
+@@ -2992,11 +2992,11 @@ create_PFeedUnit_dialog (void)
+   gtk_box_pack_start (GTK_BOX (PFeedUnitDlg_CS1Feed_box), PFeedUnitDlg_CS1Feed_label, TRUE, TRUE, 0);
+   gtk_misc_set_alignment (GTK_MISC (PFeedUnitDlg_CS1Feed_label), 0, 0.5);
+ 
+-  PFeedUnitDlg_CS1Feed_combo = gtk_combo_box_new_text ();
++  PFeedUnitDlg_CS1Feed_combo = gtk_combo_box_text_new ();
+   gtk_widget_show (PFeedUnitDlg_CS1Feed_combo);
+   gtk_box_pack_start (GTK_BOX (PFeedUnitDlg_CS1Feed_box), PFeedUnitDlg_CS1Feed_combo, TRUE, TRUE, 0);
+ 
+-  PFeedUnitDlg_CS1Type_box = gtk_hbox_new (TRUE, 5);
++  PFeedUnitDlg_CS1Type_box = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 5);
+   gtk_widget_show (PFeedUnitDlg_CS1Type_box);
+   gtk_box_pack_start (GTK_BOX (PFeedUnitDlg_CS1_vBox), PFeedUnitDlg_CS1Type_box, TRUE, TRUE, 0);
+ 
+@@ -3005,7 +3005,7 @@ create_PFeedUnit_dialog (void)
+   gtk_box_pack_start (GTK_BOX (PFeedUnitDlg_CS1Type_box), PFeedUnitDlg_CS1Type_label, TRUE, TRUE, 0);
+   gtk_misc_set_alignment (GTK_MISC (PFeedUnitDlg_CS1Type_label), 0, 0.5);
+ 
+-  PFeedUnitDlg_CS1Type_combo = gtk_combo_box_new_text ();
++  PFeedUnitDlg_CS1Type_combo = gtk_combo_box_text_new ();
+   gtk_widget_show (PFeedUnitDlg_CS1Type_combo);
+   gtk_box_pack_start (GTK_BOX (PFeedUnitDlg_CS1Type_box), PFeedUnitDlg_CS1Type_combo, TRUE, TRUE, 0);
+ 
+@@ -3032,11 +3032,11 @@ create_PFeedUnit_dialog (void)
+   gtk_container_set_border_width (GTK_CONTAINER (PFeedUnitDlg_CS1PSWalignment), 5);
+   gtk_alignment_set_padding (GTK_ALIGNMENT (PFeedUnitDlg_CS1PSWalignment), 0, 0, 5, 5);
+ 
+-  PFeedUnitDlg_CS1PSW_vBox = gtk_vbox_new (TRUE, 0);
++  PFeedUnitDlg_CS1PSW_vBox = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
+   gtk_widget_show (PFeedUnitDlg_CS1PSW_vBox);
+   gtk_container_add (GTK_CONTAINER (PFeedUnitDlg_CS1PSWalignment), PFeedUnitDlg_CS1PSW_vBox);
+ 
+-  PFeedUnitDlg_CS1PSWSize_box = gtk_hbox_new (TRUE, 5);
++  PFeedUnitDlg_CS1PSWSize_box = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 5);
+   gtk_widget_show (PFeedUnitDlg_CS1PSWSize_box);
+   gtk_box_pack_start (GTK_BOX (PFeedUnitDlg_CS1PSW_vBox), PFeedUnitDlg_CS1PSWSize_box, TRUE, TRUE, 0);
+ 
+@@ -3045,11 +3045,11 @@ create_PFeedUnit_dialog (void)
+   gtk_box_pack_start (GTK_BOX (PFeedUnitDlg_CS1PSWSize_box), PFeedUnitDlg_CS1PSWSize_label, TRUE, TRUE, 0);
+   gtk_misc_set_alignment (GTK_MISC (PFeedUnitDlg_CS1PSWSize_label), 0, 0.5);
+ 
+-  PFeedUnitDlg_CS1PSWSize_combo = gtk_combo_box_new_text ();
++  PFeedUnitDlg_CS1PSWSize_combo = gtk_combo_box_text_new ();
+   gtk_widget_show (PFeedUnitDlg_CS1PSWSize_combo);
+   gtk_box_pack_start (GTK_BOX (PFeedUnitDlg_CS1PSWSize_box), PFeedUnitDlg_CS1PSWSize_combo, TRUE, TRUE, 0);
+ 
+-  PFeedUnitDlg_CS1PSWFeed_box = gtk_hbox_new (TRUE, 5);
++  PFeedUnitDlg_CS1PSWFeed_box = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 5);
+   gtk_widget_show (PFeedUnitDlg_CS1PSWFeed_box);
+   gtk_box_pack_start (GTK_BOX (PFeedUnitDlg_CS1PSW_vBox), PFeedUnitDlg_CS1PSWFeed_box, TRUE, TRUE, 0);
+ 
+@@ -3058,11 +3058,11 @@ create_PFeedUnit_dialog (void)
+   gtk_box_pack_start (GTK_BOX (PFeedUnitDlg_CS1PSWFeed_box), PFeedUnitDlg_CS1PSWFeed_label, TRUE, TRUE, 0);
+   gtk_misc_set_alignment (GTK_MISC (PFeedUnitDlg_CS1PSWFeed_label), 0, 0.5);
+ 
+-  PFeedUnitDlg_CS1PSWFeed_combo = gtk_combo_box_new_text ();
++  PFeedUnitDlg_CS1PSWFeed_combo = gtk_combo_box_text_new ();
+   gtk_widget_show (PFeedUnitDlg_CS1PSWFeed_combo);
+   gtk_box_pack_start (GTK_BOX (PFeedUnitDlg_CS1PSWFeed_box), PFeedUnitDlg_CS1PSWFeed_combo, TRUE, TRUE, 0);
+ 
+-  PFeedUnitDlg_CS1PSWType_box = gtk_hbox_new (TRUE, 5);
++  PFeedUnitDlg_CS1PSWType_box = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 5);
+   gtk_widget_show (PFeedUnitDlg_CS1PSWType_box);
+   gtk_box_pack_start (GTK_BOX (PFeedUnitDlg_CS1PSW_vBox), PFeedUnitDlg_CS1PSWType_box, TRUE, TRUE, 0);
+ 
+@@ -3071,7 +3071,7 @@ create_PFeedUnit_dialog (void)
+   gtk_box_pack_start (GTK_BOX (PFeedUnitDlg_CS1PSWType_box), PFeedUnitDlg_CS1PSWType_label, TRUE, TRUE, 0);
+   gtk_misc_set_alignment (GTK_MISC (PFeedUnitDlg_CS1PSWType_label), 0, 0.5);
+ 
+-  PFeedUnitDlg_CS1PSWType_combo = gtk_combo_box_new_text ();
++  PFeedUnitDlg_CS1PSWType_combo = gtk_combo_box_text_new ();
+   gtk_widget_show (PFeedUnitDlg_CS1PSWType_combo);
+   gtk_box_pack_start (GTK_BOX (PFeedUnitDlg_CS1PSWType_box), PFeedUnitDlg_CS1PSWType_combo, TRUE, TRUE, 0);
+ 
+@@ -3094,11 +3094,11 @@ create_PFeedUnit_dialog (void)
+   gtk_container_set_border_width (GTK_CONTAINER (PFeedUnitDlg_MPTrayalignment), 5);
+   gtk_alignment_set_padding (GTK_ALIGNMENT (PFeedUnitDlg_MPTrayalignment), 0, 0, 5, 5);
+ 
+-  PFeedUnitDlg_MPTray_vBox = gtk_vbox_new (TRUE, 0);
++  PFeedUnitDlg_MPTray_vBox = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
+   gtk_widget_show (PFeedUnitDlg_MPTray_vBox);
+   gtk_container_add (GTK_CONTAINER (PFeedUnitDlg_MPTrayalignment), PFeedUnitDlg_MPTray_vBox);
+ 
+-  PFeedUnitDlg_MPTraySize_box = gtk_hbox_new (TRUE, 5);
++  PFeedUnitDlg_MPTraySize_box = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 5);
+   gtk_widget_show (PFeedUnitDlg_MPTraySize_box);
+   gtk_box_pack_start (GTK_BOX (PFeedUnitDlg_MPTray_vBox), PFeedUnitDlg_MPTraySize_box, TRUE, TRUE, 0);
+ 
+@@ -3107,11 +3107,11 @@ create_PFeedUnit_dialog (void)
+   gtk_box_pack_start (GTK_BOX (PFeedUnitDlg_MPTraySize_box), PFeedUnitDlg_MPTraySize_label, TRUE, TRUE, 0);
+   gtk_misc_set_alignment (GTK_MISC (PFeedUnitDlg_MPTraySize_label), 0, 0.5);
+ 
+-  PFeedUnitDlg_MPTraySize_combo = gtk_combo_box_new_text ();
++  PFeedUnitDlg_MPTraySize_combo = gtk_combo_box_text_new ();
+   gtk_widget_show (PFeedUnitDlg_MPTraySize_combo);
+   gtk_box_pack_start (GTK_BOX (PFeedUnitDlg_MPTraySize_box), PFeedUnitDlg_MPTraySize_combo, TRUE, TRUE, 0);
+ 
+-  PFeedUnitDlg_MPTrayFeed_box = gtk_hbox_new (TRUE, 5);
++  PFeedUnitDlg_MPTrayFeed_box = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 5);
+   gtk_widget_show (PFeedUnitDlg_MPTrayFeed_box);
+   gtk_box_pack_start (GTK_BOX (PFeedUnitDlg_MPTray_vBox), PFeedUnitDlg_MPTrayFeed_box, TRUE, TRUE, 0);
+ 
+@@ -3120,11 +3120,11 @@ create_PFeedUnit_dialog (void)
+   gtk_box_pack_start (GTK_BOX (PFeedUnitDlg_MPTrayFeed_box), PFeedUnitDlg_MPTrayFeed_label, TRUE, TRUE, 0);
+   gtk_misc_set_alignment (GTK_MISC (PFeedUnitDlg_MPTrayFeed_label), 0, 0.5);
+ 
+-  PFeedUnitDlg_MPTrayFeed_combo = gtk_combo_box_new_text ();
++  PFeedUnitDlg_MPTrayFeed_combo = gtk_combo_box_text_new ();
+   gtk_widget_show (PFeedUnitDlg_MPTrayFeed_combo);
+   gtk_box_pack_start (GTK_BOX (PFeedUnitDlg_MPTrayFeed_box), PFeedUnitDlg_MPTrayFeed_combo, TRUE, TRUE, 0);
+ 
+-  PFeedUnitDlg_MPTrayType_box = gtk_hbox_new (TRUE, 5);
++  PFeedUnitDlg_MPTrayType_box = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 5);
+   gtk_widget_show (PFeedUnitDlg_MPTrayType_box);
+   gtk_box_pack_start (GTK_BOX (PFeedUnitDlg_MPTray_vBox), PFeedUnitDlg_MPTrayType_box, TRUE, TRUE, 0);
+ 
+@@ -3133,7 +3133,7 @@ create_PFeedUnit_dialog (void)
+   gtk_box_pack_start (GTK_BOX (PFeedUnitDlg_MPTrayType_box), PFeedUnitDlg_MPTrayType_label, TRUE, TRUE, 0);
+   gtk_misc_set_alignment (GTK_MISC (PFeedUnitDlg_MPTrayType_label), 0, 0.5);
+ 
+-  PFeedUnitDlg_MPTrayType_combo = gtk_combo_box_new_text ();
++  PFeedUnitDlg_MPTrayType_combo = gtk_combo_box_text_new ();
+   gtk_widget_show (PFeedUnitDlg_MPTrayType_combo);
+   gtk_box_pack_start (GTK_BOX (PFeedUnitDlg_MPTrayType_box), PFeedUnitDlg_MPTrayType_combo, TRUE, TRUE, 0);
+ 
+@@ -3156,11 +3156,11 @@ create_PFeedUnit_dialog (void)
+   gtk_container_set_border_width (GTK_CONTAINER (PFeedUnitDlg_CS2PSWalignment), 5);
+   gtk_alignment_set_padding (GTK_ALIGNMENT (PFeedUnitDlg_CS2PSWalignment), 0, 0, 5, 5);
+ 
+-  PFeedUnitDlg_CS2PSW_vBox = gtk_vbox_new (TRUE, 0);
++  PFeedUnitDlg_CS2PSW_vBox = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
+   gtk_widget_show (PFeedUnitDlg_CS2PSW_vBox);
+   gtk_container_add (GTK_CONTAINER (PFeedUnitDlg_CS2PSWalignment), PFeedUnitDlg_CS2PSW_vBox);
+ 
+-  PFeedUnitDlg_CS2PSWSize_box = gtk_hbox_new (TRUE, 5);
++  PFeedUnitDlg_CS2PSWSize_box = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 5);
+   gtk_widget_show (PFeedUnitDlg_CS2PSWSize_box);
+   gtk_box_pack_start (GTK_BOX (PFeedUnitDlg_CS2PSW_vBox), PFeedUnitDlg_CS2PSWSize_box, TRUE, TRUE, 0);
+ 
+@@ -3169,11 +3169,11 @@ create_PFeedUnit_dialog (void)
+   gtk_box_pack_start (GTK_BOX (PFeedUnitDlg_CS2PSWSize_box), PFeedUnitDlg_CS2PSWSize_label, TRUE, TRUE, 0);
+   gtk_misc_set_alignment (GTK_MISC (PFeedUnitDlg_CS2PSWSize_label), 0, 0.5);
+ 
+-  PFeedUnitDlg_CS2PSWSize_combo = gtk_combo_box_new_text ();
++  PFeedUnitDlg_CS2PSWSize_combo = gtk_combo_box_text_new ();
+   gtk_widget_show (PFeedUnitDlg_CS2PSWSize_combo);
+   gtk_box_pack_start (GTK_BOX (PFeedUnitDlg_CS2PSWSize_box), PFeedUnitDlg_CS2PSWSize_combo, TRUE, TRUE, 0);
+ 
+-  PFeedUnitDlg_CS2PSWFeed_box = gtk_hbox_new (TRUE, 5);
++  PFeedUnitDlg_CS2PSWFeed_box = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 5);
+   gtk_widget_show (PFeedUnitDlg_CS2PSWFeed_box);
+   gtk_box_pack_start (GTK_BOX (PFeedUnitDlg_CS2PSW_vBox), PFeedUnitDlg_CS2PSWFeed_box, TRUE, TRUE, 0);
+ 
+@@ -3182,11 +3182,11 @@ create_PFeedUnit_dialog (void)
+   gtk_box_pack_start (GTK_BOX (PFeedUnitDlg_CS2PSWFeed_box), PFeedUnitDlg_CS2PSWFeed_label, TRUE, TRUE, 0);
+   gtk_misc_set_alignment (GTK_MISC (PFeedUnitDlg_CS2PSWFeed_label), 0, 0.5);
+ 
+-  PFeedUnitDlg_CS2PSWFeed_combo = gtk_combo_box_new_text ();
++  PFeedUnitDlg_CS2PSWFeed_combo = gtk_combo_box_text_new ();
+   gtk_widget_show (PFeedUnitDlg_CS2PSWFeed_combo);
+   gtk_box_pack_start (GTK_BOX (PFeedUnitDlg_CS2PSWFeed_box), PFeedUnitDlg_CS2PSWFeed_combo, TRUE, TRUE, 0);
+ 
+-  PFeedUnitDlg_CS2PSWType_box = gtk_hbox_new (TRUE, 5);
++  PFeedUnitDlg_CS2PSWType_box = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 5);
+   gtk_widget_show (PFeedUnitDlg_CS2PSWType_box);
+   gtk_box_pack_start (GTK_BOX (PFeedUnitDlg_CS2PSW_vBox), PFeedUnitDlg_CS2PSWType_box, TRUE, TRUE, 0);
+ 
+@@ -3195,7 +3195,7 @@ create_PFeedUnit_dialog (void)
+   gtk_box_pack_start (GTK_BOX (PFeedUnitDlg_CS2PSWType_box), PFeedUnitDlg_CS2PSWType_label, TRUE, TRUE, 0);
+   gtk_misc_set_alignment (GTK_MISC (PFeedUnitDlg_CS2PSWType_label), 0, 0.5);
+ 
+-  PFeedUnitDlg_CS2PSWType_combo = gtk_combo_box_new_text ();
++  PFeedUnitDlg_CS2PSWType_combo = gtk_combo_box_text_new ();
+   gtk_widget_show (PFeedUnitDlg_CS2PSWType_combo);
+   gtk_box_pack_start (GTK_BOX (PFeedUnitDlg_CS2PSWType_box), PFeedUnitDlg_CS2PSWType_combo, TRUE, TRUE, 0);
+ 
+@@ -3218,11 +3218,11 @@ create_PFeedUnit_dialog (void)
+   gtk_container_set_border_width (GTK_CONTAINER (PFeedUnitDlg_CS3PSWalignment), 5);
+   gtk_alignment_set_padding (GTK_ALIGNMENT (PFeedUnitDlg_CS3PSWalignment), 0, 0, 5, 5);
+ 
+-  PFeedUnitDlg_CS3PSW_vBox = gtk_vbox_new (TRUE, 0);
++  PFeedUnitDlg_CS3PSW_vBox = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
+   gtk_widget_show (PFeedUnitDlg_CS3PSW_vBox);
+   gtk_container_add (GTK_CONTAINER (PFeedUnitDlg_CS3PSWalignment), PFeedUnitDlg_CS3PSW_vBox);
+ 
+-  PFeedUnitDlg_CS3PSWSize_box = gtk_hbox_new (TRUE, 5);
++  PFeedUnitDlg_CS3PSWSize_box = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 5);
+   gtk_widget_show (PFeedUnitDlg_CS3PSWSize_box);
+   gtk_box_pack_start (GTK_BOX (PFeedUnitDlg_CS3PSW_vBox), PFeedUnitDlg_CS3PSWSize_box, TRUE, TRUE, 0);
+ 
+@@ -3231,11 +3231,11 @@ create_PFeedUnit_dialog (void)
+   gtk_box_pack_start (GTK_BOX (PFeedUnitDlg_CS3PSWSize_box), PFeedUnitDlg_CS3PSWSize_label, TRUE, TRUE, 0);
+   gtk_misc_set_alignment (GTK_MISC (PFeedUnitDlg_CS3PSWSize_label), 0, 0.5);
+ 
+-  PFeedUnitDlg_CS3PSWSize_combo = gtk_combo_box_new_text ();
++  PFeedUnitDlg_CS3PSWSize_combo = gtk_combo_box_text_new ();
+   gtk_widget_show (PFeedUnitDlg_CS3PSWSize_combo);
+   gtk_box_pack_start (GTK_BOX (PFeedUnitDlg_CS3PSWSize_box), PFeedUnitDlg_CS3PSWSize_combo, TRUE, TRUE, 0);
+ 
+-  PFeedUnitDlg_CS3PSWFeed_box = gtk_hbox_new (TRUE, 5);
++  PFeedUnitDlg_CS3PSWFeed_box = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 5);
+   gtk_widget_show (PFeedUnitDlg_CS3PSWFeed_box);
+   gtk_box_pack_start (GTK_BOX (PFeedUnitDlg_CS3PSW_vBox), PFeedUnitDlg_CS3PSWFeed_box, TRUE, TRUE, 0);
+ 
+@@ -3244,11 +3244,11 @@ create_PFeedUnit_dialog (void)
+   gtk_box_pack_start (GTK_BOX (PFeedUnitDlg_CS3PSWFeed_box), PFeedUnitDlg_CS3PSWFeed_label, TRUE, TRUE, 0);
+   gtk_misc_set_alignment (GTK_MISC (PFeedUnitDlg_CS3PSWFeed_label), 0, 0.5);
+ 
+-  PFeedUnitDlg_CS3PSWFeed_combo = gtk_combo_box_new_text ();
++  PFeedUnitDlg_CS3PSWFeed_combo = gtk_combo_box_text_new ();
+   gtk_widget_show (PFeedUnitDlg_CS3PSWFeed_combo);
+   gtk_box_pack_start (GTK_BOX (PFeedUnitDlg_CS3PSWFeed_box), PFeedUnitDlg_CS3PSWFeed_combo, TRUE, TRUE, 0);
+ 
+-  PFeedUnitDlg_CS3PSWType_box = gtk_hbox_new (TRUE, 5);
++  PFeedUnitDlg_CS3PSWType_box = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 5);
+   gtk_widget_show (PFeedUnitDlg_CS3PSWType_box);
+   gtk_box_pack_start (GTK_BOX (PFeedUnitDlg_CS3PSW_vBox), PFeedUnitDlg_CS3PSWType_box, TRUE, TRUE, 0);
+ 
+@@ -3257,7 +3257,7 @@ create_PFeedUnit_dialog (void)
+   gtk_box_pack_start (GTK_BOX (PFeedUnitDlg_CS3PSWType_box), PFeedUnitDlg_CS3PSWType_label, TRUE, TRUE, 0);
+   gtk_misc_set_alignment (GTK_MISC (PFeedUnitDlg_CS3PSWType_label), 0, 0.5);
+ 
+-  PFeedUnitDlg_CS3PSWType_combo = gtk_combo_box_new_text ();
++  PFeedUnitDlg_CS3PSWType_combo = gtk_combo_box_text_new ();
+   gtk_widget_show (PFeedUnitDlg_CS3PSWType_combo);
+   gtk_box_pack_start (GTK_BOX (PFeedUnitDlg_CS3PSWType_box), PFeedUnitDlg_CS3PSWType_combo, TRUE, TRUE, 0);
+ 
+@@ -3276,7 +3276,7 @@ create_PFeedUnit_dialog (void)
+   gtk_container_add (GTK_CONTAINER (PFeedUnitDlg_Helpframe), PFeedUnitDlg_Helpalignment);
+   gtk_alignment_set_padding (GTK_ALIGNMENT (PFeedUnitDlg_Helpalignment), 0, 0, 12, 0);
+ 
+-  PFeedUnitDlg_Help_vBox = gtk_vbox_new (FALSE, 0);
++  PFeedUnitDlg_Help_vBox = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
+   gtk_widget_show (PFeedUnitDlg_Help_vBox);
+   gtk_container_add (GTK_CONTAINER (PFeedUnitDlg_Helpalignment), PFeedUnitDlg_Help_vBox);
+ 
+@@ -3298,11 +3298,11 @@ create_PFeedUnit_dialog (void)
+   gtk_label_set_use_markup (GTK_LABEL (PFeedUnitDlg_Help_label), TRUE);
+   gtk_misc_set_alignment (GTK_MISC (PFeedUnitDlg_Help_label), 0, 0);
+ 
+-  PFeedUnitDlg_hbuttonbox = GTK_DIALOG (PFeedUnit_dialog)->action_area;
++  PFeedUnitDlg_hbuttonbox = gtk_dialog_get_action_area (GTK_DIALOG (PFeedUnit_dialog));
+   gtk_widget_show (PFeedUnitDlg_hbuttonbox);
+   gtk_button_box_set_layout (GTK_BUTTON_BOX (PFeedUnitDlg_hbuttonbox), GTK_BUTTONBOX_END);
+ 
+-  PFeedUnitDlg_OKCancel_hbuttonbox = gtk_hbutton_box_new ();
++  PFeedUnitDlg_OKCancel_hbuttonbox = gtk_button_box_new (GTK_ORIENTATION_HORIZONTAL);
+   gtk_widget_show (PFeedUnitDlg_OKCancel_hbuttonbox);
+   gtk_container_add (GTK_CONTAINER (PFeedUnitDlg_hbuttonbox), PFeedUnitDlg_OKCancel_hbuttonbox);
+   gtk_button_box_set_layout (GTK_BUTTON_BOX (PFeedUnitDlg_OKCancel_hbuttonbox), GTK_BUTTONBOX_END);
+@@ -3310,12 +3310,12 @@ create_PFeedUnit_dialog (void)
+   PFeedUnitDlg_OK_button = gtk_button_new_with_mnemonic (_("OK"));
+   gtk_widget_show (PFeedUnitDlg_OK_button);
+   gtk_container_add (GTK_CONTAINER (PFeedUnitDlg_OKCancel_hbuttonbox), PFeedUnitDlg_OK_button);
+-  GTK_WIDGET_SET_FLAGS (PFeedUnitDlg_OK_button, GTK_CAN_DEFAULT);
++  gtk_widget_set_can_default (PFeedUnitDlg_OK_button, TRUE);
+ 
+   PFeedUnitDlg_Cancel_button = gtk_button_new_with_mnemonic (_("Cancel "));
+   gtk_widget_show (PFeedUnitDlg_Cancel_button);
+   gtk_container_add (GTK_CONTAINER (PFeedUnitDlg_OKCancel_hbuttonbox), PFeedUnitDlg_Cancel_button);
+-  GTK_WIDGET_SET_FLAGS (PFeedUnitDlg_Cancel_button, GTK_CAN_DEFAULT);
++  gtk_widget_set_can_default (PFeedUnitDlg_Cancel_button, TRUE);
+ 
+   g_signal_connect ((gpointer) PFeedUnit_dialog, "delete_event",
+                     G_CALLBACK (on_PFeedUnitDlg_delete_event),
+@@ -3478,7 +3478,7 @@ create_WarningDisplay_dialog (void)
+   gtk_window_set_resizable (GTK_WINDOW (WarningDisplay_dialog), FALSE);
+   gtk_window_set_type_hint (GTK_WINDOW (WarningDisplay_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
+ 
+-  vbox57 = GTK_DIALOG (WarningDisplay_dialog)->vbox;
++  vbox57 = gtk_dialog_get_content_area (GTK_DIALOG (WarningDisplay_dialog));
+   gtk_widget_show (vbox57);
+ 
+   frame67 = gtk_frame_new (NULL);
+@@ -3488,7 +3488,7 @@ create_WarningDisplay_dialog (void)
+   gtk_container_set_border_width (GTK_CONTAINER (frame67), 10);
+   gtk_frame_set_shadow_type (GTK_FRAME (frame67), GTK_SHADOW_NONE);
+ 
+-  WarningDisplayDlg_DisplayTonerLow_box = gtk_vbox_new (FALSE, 0);
++  WarningDisplayDlg_DisplayTonerLow_box = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
+   gtk_widget_show (WarningDisplayDlg_DisplayTonerLow_box);
+   gtk_container_add (GTK_CONTAINER (frame67), WarningDisplayDlg_DisplayTonerLow_box);
+ 
+@@ -3496,11 +3496,11 @@ create_WarningDisplay_dialog (void)
+   gtk_widget_show (WarningDisplayDlg_DisplayTonerLow_checkbutton);
+   gtk_box_pack_start (GTK_BOX (WarningDisplayDlg_DisplayTonerLow_box), WarningDisplayDlg_DisplayTonerLow_checkbutton, FALSE, FALSE, 0);
+ 
+-  hbuttonbox23 = GTK_DIALOG (WarningDisplay_dialog)->action_area;
++  hbuttonbox23 = gtk_dialog_get_action_area (GTK_DIALOG (WarningDisplay_dialog));
+   gtk_widget_show (hbuttonbox23);
+   gtk_button_box_set_layout (GTK_BUTTON_BOX (hbuttonbox23), GTK_BUTTONBOX_END);
+ 
+-  hbuttonbox24 = gtk_hbutton_box_new ();
++  hbuttonbox24 = gtk_button_box_new (GTK_ORIENTATION_HORIZONTAL);
+   gtk_widget_show (hbuttonbox24);
+   gtk_container_add (GTK_CONTAINER (hbuttonbox23), hbuttonbox24);
+   gtk_button_box_set_layout (GTK_BUTTON_BOX (hbuttonbox24), GTK_BUTTONBOX_END);
+@@ -3508,12 +3508,12 @@ create_WarningDisplay_dialog (void)
+   button3 = gtk_button_new_with_mnemonic (_("OK"));
+   gtk_widget_show (button3);
+   gtk_container_add (GTK_CONTAINER (hbuttonbox24), button3);
+-  GTK_WIDGET_SET_FLAGS (button3, GTK_CAN_DEFAULT);
++  gtk_widget_set_can_default (button3, TRUE);
+ 
+   button4 = gtk_button_new_with_mnemonic (_("Cancel "));
+   gtk_widget_show (button4);
+   gtk_container_add (GTK_CONTAINER (hbuttonbox24), button4);
+-  GTK_WIDGET_SET_FLAGS (button4, GTK_CAN_DEFAULT);
++  gtk_widget_set_can_default (button4, TRUE);
+ 
+   g_signal_connect ((gpointer) WarningDisplay_dialog, "delete_event",
+                     G_CALLBACK (on_WarningDisplayDlg_delete_event),
+@@ -3567,7 +3567,7 @@ create_MobilePrint_dialog (void)
+   gtk_window_set_resizable (GTK_WINDOW (MobilePrint_dialog), FALSE);
+   gtk_window_set_type_hint (GTK_WINDOW (MobilePrint_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
+ 
+-  vbox61 = GTK_DIALOG (MobilePrint_dialog)->vbox;
++  vbox61 = gtk_dialog_get_content_area (GTK_DIALOG (MobilePrint_dialog));
+   gtk_widget_show (vbox61);
+ 
+   frame69 = gtk_frame_new (NULL);
+@@ -3577,11 +3577,11 @@ create_MobilePrint_dialog (void)
+   gtk_container_set_border_width (GTK_CONTAINER (frame69), 5);
+   gtk_frame_set_shadow_type (GTK_FRAME (frame69), GTK_SHADOW_NONE);
+ 
+-  vbox62 = gtk_vbox_new (FALSE, 0);
++  vbox62 = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
+   gtk_widget_show (vbox62);
+   gtk_container_add (GTK_CONTAINER (frame69), vbox62);
+ 
+-  MobilePrintDlg_Halftones_box = gtk_hbox_new (FALSE, 0);
++  MobilePrintDlg_Halftones_box = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
+   gtk_widget_show (MobilePrintDlg_Halftones_box);
+   gtk_box_pack_start (GTK_BOX (vbox62), MobilePrintDlg_Halftones_box, TRUE, TRUE, 0);
+ 
+@@ -3592,15 +3592,15 @@ create_MobilePrint_dialog (void)
+   gtk_misc_set_alignment (GTK_MISC (MobilePrintDlg_Halftones_label), 0, 0.5);
+   gtk_misc_set_padding (GTK_MISC (MobilePrintDlg_Halftones_label), 3, 0);
+ 
+-  MobilePrintDlg_Halftones_combo = gtk_combo_box_new_text ();
++  MobilePrintDlg_Halftones_combo = gtk_combo_box_text_new ();
+   gtk_widget_show (MobilePrintDlg_Halftones_combo);
+   gtk_box_pack_start (GTK_BOX (MobilePrintDlg_Halftones_box), MobilePrintDlg_Halftones_combo, TRUE, TRUE, 0);
+ 
+-  hbuttonbox27 = GTK_DIALOG (MobilePrint_dialog)->action_area;
++  hbuttonbox27 = gtk_dialog_get_action_area (GTK_DIALOG (MobilePrint_dialog));
+   gtk_widget_show (hbuttonbox27);
+   gtk_button_box_set_layout (GTK_BUTTON_BOX (hbuttonbox27), GTK_BUTTONBOX_END);
+ 
+-  hbuttonbox28 = gtk_hbutton_box_new ();
++  hbuttonbox28 = gtk_button_box_new (GTK_ORIENTATION_HORIZONTAL);
+   gtk_widget_show (hbuttonbox28);
+   gtk_container_add (GTK_CONTAINER (hbuttonbox27), hbuttonbox28);
+   gtk_button_box_set_layout (GTK_BUTTON_BOX (hbuttonbox28), GTK_BUTTONBOX_END);
+@@ -3608,12 +3608,12 @@ create_MobilePrint_dialog (void)
+   button7 = gtk_button_new_with_mnemonic (_("OK"));
+   gtk_widget_show (button7);
+   gtk_container_add (GTK_CONTAINER (hbuttonbox28), button7);
+-  GTK_WIDGET_SET_FLAGS (button7, GTK_CAN_DEFAULT);
++  gtk_widget_set_can_default (button7, TRUE);
+ 
+   button8 = gtk_button_new_with_mnemonic (_("Cancel "));
+   gtk_widget_show (button8);
+   gtk_container_add (GTK_CONTAINER (hbuttonbox28), button8);
+-  GTK_WIDGET_SET_FLAGS (button8, GTK_CAN_DEFAULT);
++  gtk_widget_set_can_default (button8, TRUE);
+ 
+   g_signal_connect ((gpointer) MobilePrint_dialog, "delete_event",
+                     G_CALLBACK (on_MobilePrint_dialog_delete_event),
+@@ -3667,7 +3667,7 @@ create_PaperSizeCheck_dialog (void)
+   gtk_window_set_resizable (GTK_WINDOW (PaperSizeCheck_dialog), FALSE);
+   gtk_window_set_type_hint (GTK_WINDOW (PaperSizeCheck_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
+ 
+-  vbox63 = GTK_DIALOG (PaperSizeCheck_dialog)->vbox;
++  vbox63 = gtk_dialog_get_content_area (GTK_DIALOG (PaperSizeCheck_dialog));
+   gtk_widget_show (vbox63);
+ 
+   frame70 = gtk_frame_new (NULL);
+@@ -3676,11 +3676,11 @@ create_PaperSizeCheck_dialog (void)
+   gtk_container_set_border_width (GTK_CONTAINER (frame70), 5);
+   gtk_frame_set_shadow_type (GTK_FRAME (frame70), GTK_SHADOW_NONE);
+ 
+-  vbox64 = gtk_vbox_new (FALSE, 0);
++  vbox64 = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
+   gtk_widget_show (vbox64);
+   gtk_container_add (GTK_CONTAINER (frame70), vbox64);
+ 
+-  PaperSizeCheckDlg_PaperSizeMismatchAction_box = gtk_hbox_new (FALSE, 0);
++  PaperSizeCheckDlg_PaperSizeMismatchAction_box = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
+   gtk_widget_show (PaperSizeCheckDlg_PaperSizeMismatchAction_box);
+   gtk_box_pack_start (GTK_BOX (vbox64), PaperSizeCheckDlg_PaperSizeMismatchAction_box, TRUE, TRUE, 0);
+ 
+@@ -3691,15 +3691,15 @@ create_PaperSizeCheck_dialog (void)
+   gtk_misc_set_alignment (GTK_MISC (PaperSizeCheckDlg_PaperSizeMismatchAction_label), 0, 0.5);
+   gtk_misc_set_padding (GTK_MISC (PaperSizeCheckDlg_PaperSizeMismatchAction_label), 3, 0);
+ 
+-  PaperSizeCheckDlg_PaperSizeMismatchAction_combo = gtk_combo_box_new_text ();
++  PaperSizeCheckDlg_PaperSizeMismatchAction_combo = gtk_combo_box_text_new ();
+   gtk_widget_show (PaperSizeCheckDlg_PaperSizeMismatchAction_combo);
+   gtk_box_pack_start (GTK_BOX (PaperSizeCheckDlg_PaperSizeMismatchAction_box), PaperSizeCheckDlg_PaperSizeMismatchAction_combo, TRUE, TRUE, 0);
+ 
+-  hbuttonbox29 = GTK_DIALOG (PaperSizeCheck_dialog)->action_area;
++  hbuttonbox29 = gtk_dialog_get_action_area (GTK_DIALOG (PaperSizeCheck_dialog));
+   gtk_widget_show (hbuttonbox29);
+   gtk_button_box_set_layout (GTK_BUTTON_BOX (hbuttonbox29), GTK_BUTTONBOX_END);
+ 
+-  hbuttonbox30 = gtk_hbutton_box_new ();
++  hbuttonbox30 = gtk_button_box_new (GTK_ORIENTATION_HORIZONTAL);
+   gtk_widget_show (hbuttonbox30);
+   gtk_container_add (GTK_CONTAINER (hbuttonbox29), hbuttonbox30);
+   gtk_button_box_set_layout (GTK_BUTTON_BOX (hbuttonbox30), GTK_BUTTONBOX_END);
+@@ -3707,12 +3707,12 @@ create_PaperSizeCheck_dialog (void)
+   button9 = gtk_button_new_with_mnemonic (_("OK"));
+   gtk_widget_show (button9);
+   gtk_container_add (GTK_CONTAINER (hbuttonbox30), button9);
+-  GTK_WIDGET_SET_FLAGS (button9, GTK_CAN_DEFAULT);
++  gtk_widget_set_can_default (button9, TRUE);
+ 
+   button10 = gtk_button_new_with_mnemonic (_("Cancel "));
+   gtk_widget_show (button10);
+   gtk_container_add (GTK_CONTAINER (hbuttonbox30), button10);
+-  GTK_WIDGET_SET_FLAGS (button10, GTK_CAN_DEFAULT);
++  gtk_widget_set_can_default (button10, TRUE);
+ 
+   g_signal_connect ((gpointer) PaperSizeCheck_dialog, "delete_event",
+                     G_CALLBACK (on_PaperSizeCheck_dialog_delete_event),
+@@ -3776,7 +3776,7 @@ create_SwitchPaperFeed_dialog (void)
+   gtk_window_set_resizable (GTK_WINDOW (SwitchPaperFeed_dialog), FALSE);
+   gtk_window_set_type_hint (GTK_WINDOW (SwitchPaperFeed_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
+ 
+-  vbox65 = GTK_DIALOG (SwitchPaperFeed_dialog)->vbox;
++  vbox65 = gtk_dialog_get_content_area (GTK_DIALOG (SwitchPaperFeed_dialog));
+   gtk_widget_show (vbox65);
+ 
+   frame71 = gtk_frame_new (NULL);
+@@ -3786,11 +3786,11 @@ create_SwitchPaperFeed_dialog (void)
+   gtk_container_set_border_width (GTK_CONTAINER (frame71), 5);
+   gtk_frame_set_shadow_type (GTK_FRAME (frame71), GTK_SHADOW_NONE);
+ 
+-  vbox66 = gtk_vbox_new (FALSE, 0);
++  vbox66 = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
+   gtk_widget_show (vbox66);
+   gtk_container_add (GTK_CONTAINER (frame71), vbox66);
+ 
+-  SwitchPaperFeedDlg_ManualTray_box = gtk_hbox_new (TRUE, 5);
++  SwitchPaperFeedDlg_ManualTray_box = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 5);
+   gtk_widget_show (SwitchPaperFeedDlg_ManualTray_box);
+   gtk_box_pack_start (GTK_BOX (vbox66), SwitchPaperFeedDlg_ManualTray_box, TRUE, TRUE, 0);
+ 
+@@ -3800,11 +3800,11 @@ create_SwitchPaperFeed_dialog (void)
+   gtk_misc_set_alignment (GTK_MISC (SwitchPaperFeedDlg_ManualTray_label), 0, 0.5);
+   gtk_misc_set_padding (GTK_MISC (SwitchPaperFeedDlg_ManualTray_label), 3, 0);
+ 
+-  SwitchPaperFeedDlg_ManualTray_combo = gtk_combo_box_new_text ();
++  SwitchPaperFeedDlg_ManualTray_combo = gtk_combo_box_text_new ();
+   gtk_widget_show (SwitchPaperFeedDlg_ManualTray_combo);
+   gtk_box_pack_start (GTK_BOX (SwitchPaperFeedDlg_ManualTray_box), SwitchPaperFeedDlg_ManualTray_combo, TRUE, TRUE, 0);
+ 
+-  SwitchPaperFeedDlg_Cassette1_box = gtk_hbox_new (TRUE, 5);
++  SwitchPaperFeedDlg_Cassette1_box = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 5);
+   gtk_widget_show (SwitchPaperFeedDlg_Cassette1_box);
+   gtk_box_pack_start (GTK_BOX (vbox66), SwitchPaperFeedDlg_Cassette1_box, TRUE, TRUE, 0);
+ 
+@@ -3814,15 +3814,15 @@ create_SwitchPaperFeed_dialog (void)
+   gtk_misc_set_alignment (GTK_MISC (SwitchPaperFeedDlg_Cassette1_label), 0, 0.5);
+   gtk_misc_set_padding (GTK_MISC (SwitchPaperFeedDlg_Cassette1_label), 3, 0);
+ 
+-  SwitchPaperFeedDlg_Cassette1_combo = gtk_combo_box_new_text ();
++  SwitchPaperFeedDlg_Cassette1_combo = gtk_combo_box_text_new ();
+   gtk_widget_show (SwitchPaperFeedDlg_Cassette1_combo);
+   gtk_box_pack_start (GTK_BOX (SwitchPaperFeedDlg_Cassette1_box), SwitchPaperFeedDlg_Cassette1_combo, TRUE, TRUE, 0);
+ 
+-  hbuttonbox31 = GTK_DIALOG (SwitchPaperFeed_dialog)->action_area;
++  hbuttonbox31 = gtk_dialog_get_action_area (GTK_DIALOG (SwitchPaperFeed_dialog));
+   gtk_widget_show (hbuttonbox31);
+   gtk_button_box_set_layout (GTK_BUTTON_BOX (hbuttonbox31), GTK_BUTTONBOX_END);
+ 
+-  hbuttonbox32 = gtk_hbutton_box_new ();
++  hbuttonbox32 = gtk_button_box_new (GTK_ORIENTATION_HORIZONTAL);
+   gtk_widget_show (hbuttonbox32);
+   gtk_container_add (GTK_CONTAINER (hbuttonbox31), hbuttonbox32);
+   gtk_button_box_set_layout (GTK_BUTTON_BOX (hbuttonbox32), GTK_BUTTONBOX_END);
+@@ -3830,12 +3830,12 @@ create_SwitchPaperFeed_dialog (void)
+   button11 = gtk_button_new_with_mnemonic (_("OK"));
+   gtk_widget_show (button11);
+   gtk_container_add (GTK_CONTAINER (hbuttonbox32), button11);
+-  GTK_WIDGET_SET_FLAGS (button11, GTK_CAN_DEFAULT);
++  gtk_widget_set_can_default (button11, TRUE);
+ 
+   button12 = gtk_button_new_with_mnemonic (_("Cancel "));
+   gtk_widget_show (button12);
+   gtk_container_add (GTK_CONTAINER (hbuttonbox32), button12);
+-  GTK_WIDGET_SET_FLAGS (button12, GTK_CAN_DEFAULT);
++  gtk_widget_set_can_default (button12, TRUE);
+ 
+   g_signal_connect ((gpointer) SwitchPaperFeed_dialog, "delete_event",
+                     G_CALLBACK (on_SwitchPaperFeed_dialog_delete_event),
+@@ -3889,7 +3889,7 @@ create_WarningDetails_dialog (void)
+   GtkWidget *WarningDetailsDlg_CRGLowThresholdValue_box;
+   GtkWidget *WarningDetailsDlg_CRGLowThresholdValue_label;
+   GtkWidget *hbox83;
+-  GtkObject *WarningDetailsDlg_CRGLowThresholdValue_spinbutton_adj;
++  GObject *WarningDetailsDlg_CRGLowThresholdValue_spinbutton_adj;
+   GtkWidget *WarningDetailsDlg_CRGLowThresholdValue_spinbutton;
+   GtkWidget *WarningDetailsDlg_CRGLowThresholdUnit_label;
+   GtkWidget *WarningDetailsDlg_Type2_box;
+@@ -3901,12 +3901,12 @@ create_WarningDetails_dialog (void)
+   GtkWidget *label176;
+   GtkWidget *WarningDetailsDlg_TonerLowThresholdValue_box;
+   GtkWidget *WarningDetailsDlg_TonerLowThresholdValue_label;
+-  GtkObject *WarningDetailsDlg_TonerLowThresholdValue_spin_adj;
++  GObject *WarningDetailsDlg_TonerLowThresholdValue_spin_adj;
+   GtkWidget *WarningDetailsDlg_TonerLowThresholdValue_spin;
+   GtkWidget *label178;
+   GtkWidget *WarningDetailsDlg_DrumLowThresholdValue_box;
+   GtkWidget *WarningDetailsDlg_DrumLowThresholdValue_label;
+-  GtkObject *WarningDetailsDlg_DrumLowThresholdValue_spin_adj;
++  GObject *WarningDetailsDlg_DrumLowThresholdValue_spin_adj;
+   GtkWidget *WarningDetailsDlg_DrumLowThresholdValue_spin;
+   GtkWidget *label179;
+   GtkWidget *WarningDetailsDlg_Type3_box;
+@@ -3918,7 +3918,7 @@ create_WarningDetails_dialog (void)
+   GtkWidget *label177;
+   GtkWidget *WarningDetailsDlg_DrumLowThresholdValue_box2;
+   GtkWidget *WarningDetailsDlg_DrumLowThresholdValue_label2;
+-  GtkObject *WarningDetailsDlg_DrumLowThresholdValue_spin2_adj;
++  GObject *WarningDetailsDlg_DrumLowThresholdValue_spin2_adj;
+   GtkWidget *WarningDetailsDlg_DrumLowThresholdValue_spin2;
+   GtkWidget *label180;
+   GtkWidget *hbuttonbox33;
+@@ -3933,10 +3933,10 @@ create_WarningDetails_dialog (void)
+   gtk_window_set_resizable (GTK_WINDOW (WarningDetails_dialog), FALSE);
+   gtk_window_set_type_hint (GTK_WINDOW (WarningDetails_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
+ 
+-  vbox67 = GTK_DIALOG (WarningDetails_dialog)->vbox;
++  vbox67 = gtk_dialog_get_content_area (GTK_DIALOG (WarningDetails_dialog));
+   gtk_widget_show (vbox67);
+ 
+-  WarningDetailsDlg_Type1_box = gtk_vbox_new (FALSE, 0);
++  WarningDetailsDlg_Type1_box = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
+   gtk_widget_show (WarningDetailsDlg_Type1_box);
+   gtk_box_pack_start (GTK_BOX (vbox67), WarningDetailsDlg_Type1_box, TRUE, TRUE, 0);
+ 
+@@ -3946,11 +3946,11 @@ create_WarningDetails_dialog (void)
+   gtk_container_set_border_width (GTK_CONTAINER (frame72), 5);
+   gtk_frame_set_shadow_type (GTK_FRAME (frame72), GTK_SHADOW_NONE);
+ 
+-  vbox68 = gtk_vbox_new (FALSE, 0);
++  vbox68 = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
+   gtk_widget_show (vbox68);
+   gtk_container_add (GTK_CONTAINER (frame72), vbox68);
+ 
+-  WarningDetailsDlg_CRGLowThresholdComment_box = gtk_hbox_new (FALSE, 0);
++  WarningDetailsDlg_CRGLowThresholdComment_box = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
+   gtk_widget_show (WarningDetailsDlg_CRGLowThresholdComment_box);
+   gtk_box_pack_start (GTK_BOX (vbox68), WarningDetailsDlg_CRGLowThresholdComment_box, TRUE, TRUE, 0);
+ 
+@@ -3960,7 +3960,7 @@ create_WarningDetails_dialog (void)
+   gtk_misc_set_alignment (GTK_MISC (WarningDetailsDlg_CRGLowThresholdComment_label), 0, 0.5);
+   gtk_misc_set_padding (GTK_MISC (WarningDetailsDlg_CRGLowThresholdComment_label), 3, 3);
+ 
+-  WarningDetailsDlg_CRGLowThresholdValue_box = gtk_hbox_new (FALSE, 0);
++  WarningDetailsDlg_CRGLowThresholdValue_box = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
+   gtk_widget_show (WarningDetailsDlg_CRGLowThresholdValue_box);
+   gtk_box_pack_start (GTK_BOX (vbox68), WarningDetailsDlg_CRGLowThresholdValue_box, TRUE, TRUE, 0);
+ 
+@@ -3970,11 +3970,11 @@ create_WarningDetails_dialog (void)
+   gtk_misc_set_alignment (GTK_MISC (WarningDetailsDlg_CRGLowThresholdValue_label), 0, 0.5);
+   gtk_misc_set_padding (GTK_MISC (WarningDetailsDlg_CRGLowThresholdValue_label), 20, 0);
+ 
+-  hbox83 = gtk_hbox_new (FALSE, 0);
++  hbox83 = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
+   gtk_widget_show (hbox83);
+   gtk_box_pack_start (GTK_BOX (WarningDetailsDlg_CRGLowThresholdValue_box), hbox83, FALSE, FALSE, 0);
+ 
+-  WarningDetailsDlg_CRGLowThresholdValue_spinbutton_adj = gtk_adjustment_new (1, 1, 99, 1, 10, 0);
++  WarningDetailsDlg_CRGLowThresholdValue_spinbutton_adj = (GObject *)gtk_adjustment_new (1, 1, 99, 1, 10, 0);
+   WarningDetailsDlg_CRGLowThresholdValue_spinbutton = gtk_spin_button_new (GTK_ADJUSTMENT (WarningDetailsDlg_CRGLowThresholdValue_spinbutton_adj), 1, 0);
+   gtk_widget_show (WarningDetailsDlg_CRGLowThresholdValue_spinbutton);
+   gtk_box_pack_start (GTK_BOX (hbox83), WarningDetailsDlg_CRGLowThresholdValue_spinbutton, FALSE, FALSE, 0);
+@@ -3986,7 +3986,7 @@ create_WarningDetails_dialog (void)
+   gtk_label_set_justify (GTK_LABEL (WarningDetailsDlg_CRGLowThresholdUnit_label), GTK_JUSTIFY_CENTER);
+   gtk_misc_set_padding (GTK_MISC (WarningDetailsDlg_CRGLowThresholdUnit_label), 3, 0);
+ 
+-  WarningDetailsDlg_Type2_box = gtk_vbox_new (FALSE, 0);
++  WarningDetailsDlg_Type2_box = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
+   gtk_widget_show (WarningDetailsDlg_Type2_box);
+   gtk_box_pack_start (GTK_BOX (vbox67), WarningDetailsDlg_Type2_box, TRUE, TRUE, 0);
+ 
+@@ -3995,11 +3995,11 @@ create_WarningDetails_dialog (void)
+   gtk_box_pack_start (GTK_BOX (WarningDetailsDlg_Type2_box), frame76, TRUE, TRUE, 0);
+   gtk_frame_set_shadow_type (GTK_FRAME (frame76), GTK_SHADOW_NONE);
+ 
+-  vbox73 = gtk_vbox_new (FALSE, 0);
++  vbox73 = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
+   gtk_widget_show (vbox73);
+   gtk_container_add (GTK_CONTAINER (frame76), vbox73);
+ 
+-  vbox75 = gtk_vbox_new (FALSE, 0);
++  vbox75 = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
+   gtk_widget_show (vbox75);
+   gtk_box_pack_start (GTK_BOX (vbox73), vbox75, FALSE, FALSE, 0);
+ 
+@@ -4009,7 +4009,7 @@ create_WarningDetails_dialog (void)
+   gtk_misc_set_alignment (GTK_MISC (label174), 0, 0.5);
+   gtk_misc_set_padding (GTK_MISC (label174), 3, 3);
+ 
+-  vbox76 = gtk_vbox_new (FALSE, 0);
++  vbox76 = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
+   gtk_widget_show (vbox76);
+   gtk_box_pack_start (GTK_BOX (vbox73), vbox76, TRUE, TRUE, 0);
+ 
+@@ -4019,7 +4019,7 @@ create_WarningDetails_dialog (void)
+   gtk_misc_set_alignment (GTK_MISC (label176), 0, 0.5);
+   gtk_misc_set_padding (GTK_MISC (label176), 3, 3);
+ 
+-  WarningDetailsDlg_TonerLowThresholdValue_box = gtk_hbox_new (FALSE, 0);
++  WarningDetailsDlg_TonerLowThresholdValue_box = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
+   gtk_widget_show (WarningDetailsDlg_TonerLowThresholdValue_box);
+   gtk_box_pack_start (GTK_BOX (vbox73), WarningDetailsDlg_TonerLowThresholdValue_box, TRUE, TRUE, 0);
+ 
+@@ -4029,7 +4029,7 @@ create_WarningDetails_dialog (void)
+   gtk_misc_set_alignment (GTK_MISC (WarningDetailsDlg_TonerLowThresholdValue_label), 0, 0.5);
+   gtk_misc_set_padding (GTK_MISC (WarningDetailsDlg_TonerLowThresholdValue_label), 20, 0);
+ 
+-  WarningDetailsDlg_TonerLowThresholdValue_spin_adj = gtk_adjustment_new (1, 1, 99, 1, 10, 0);
++  WarningDetailsDlg_TonerLowThresholdValue_spin_adj = (GObject *)gtk_adjustment_new (1, 1, 99, 1, 10, 0);
+   WarningDetailsDlg_TonerLowThresholdValue_spin = gtk_spin_button_new (GTK_ADJUSTMENT (WarningDetailsDlg_TonerLowThresholdValue_spin_adj), 1, 0);
+   gtk_widget_show (WarningDetailsDlg_TonerLowThresholdValue_spin);
+   gtk_box_pack_start (GTK_BOX (WarningDetailsDlg_TonerLowThresholdValue_box), WarningDetailsDlg_TonerLowThresholdValue_spin, FALSE, FALSE, 0);
+@@ -4041,7 +4041,7 @@ create_WarningDetails_dialog (void)
+   gtk_label_set_justify (GTK_LABEL (label178), GTK_JUSTIFY_CENTER);
+   gtk_misc_set_padding (GTK_MISC (label178), 3, 0);
+ 
+-  WarningDetailsDlg_DrumLowThresholdValue_box = gtk_hbox_new (FALSE, 0);
++  WarningDetailsDlg_DrumLowThresholdValue_box = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
+   gtk_widget_show (WarningDetailsDlg_DrumLowThresholdValue_box);
+   gtk_box_pack_start (GTK_BOX (vbox73), WarningDetailsDlg_DrumLowThresholdValue_box, TRUE, TRUE, 0);
+ 
+@@ -4051,7 +4051,7 @@ create_WarningDetails_dialog (void)
+   gtk_misc_set_alignment (GTK_MISC (WarningDetailsDlg_DrumLowThresholdValue_label), 0, 0.5);
+   gtk_misc_set_padding (GTK_MISC (WarningDetailsDlg_DrumLowThresholdValue_label), 20, 0);
+ 
+-  WarningDetailsDlg_DrumLowThresholdValue_spin_adj = gtk_adjustment_new (1, 1, 99, 1, 10, 0);
++  WarningDetailsDlg_DrumLowThresholdValue_spin_adj = (GObject *)gtk_adjustment_new (1, 1, 99, 1, 10, 0);
+   WarningDetailsDlg_DrumLowThresholdValue_spin = gtk_spin_button_new (GTK_ADJUSTMENT (WarningDetailsDlg_DrumLowThresholdValue_spin_adj), 1, 0);
+   gtk_widget_show (WarningDetailsDlg_DrumLowThresholdValue_spin);
+   gtk_box_pack_start (GTK_BOX (WarningDetailsDlg_DrumLowThresholdValue_box), WarningDetailsDlg_DrumLowThresholdValue_spin, FALSE, FALSE, 0);
+@@ -4063,7 +4063,7 @@ create_WarningDetails_dialog (void)
+   gtk_label_set_justify (GTK_LABEL (label179), GTK_JUSTIFY_CENTER);
+   gtk_misc_set_padding (GTK_MISC (label179), 3, 0);
+ 
+-  WarningDetailsDlg_Type3_box = gtk_vbox_new (FALSE, 0);
++  WarningDetailsDlg_Type3_box = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
+   gtk_widget_show (WarningDetailsDlg_Type3_box);
+   gtk_box_pack_start (GTK_BOX (vbox67), WarningDetailsDlg_Type3_box, TRUE, TRUE, 0);
+ 
+@@ -4072,11 +4072,11 @@ create_WarningDetails_dialog (void)
+   gtk_box_pack_start (GTK_BOX (WarningDetailsDlg_Type3_box), frame77, TRUE, TRUE, 0);
+   gtk_frame_set_shadow_type (GTK_FRAME (frame77), GTK_SHADOW_NONE);
+ 
+-  vbox74 = gtk_vbox_new (FALSE, 0);
++  vbox74 = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
+   gtk_widget_show (vbox74);
+   gtk_container_add (GTK_CONTAINER (frame77), vbox74);
+ 
+-  vbox77 = gtk_vbox_new (FALSE, 0);
++  vbox77 = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
+   gtk_widget_show (vbox77);
+   gtk_box_pack_start (GTK_BOX (vbox74), vbox77, FALSE, FALSE, 0);
+ 
+@@ -4086,7 +4086,7 @@ create_WarningDetails_dialog (void)
+   gtk_misc_set_alignment (GTK_MISC (label175), 0, 0.5);
+   gtk_misc_set_padding (GTK_MISC (label175), 3, 3);
+ 
+-  vbox78 = gtk_vbox_new (FALSE, 0);
++  vbox78 = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
+   gtk_widget_show (vbox78);
+   gtk_box_pack_start (GTK_BOX (vbox74), vbox78, TRUE, TRUE, 0);
+ 
+@@ -4096,7 +4096,7 @@ create_WarningDetails_dialog (void)
+   gtk_misc_set_alignment (GTK_MISC (label177), 0, 0.5);
+   gtk_misc_set_padding (GTK_MISC (label177), 3, 3);
+ 
+-  WarningDetailsDlg_DrumLowThresholdValue_box2 = gtk_hbox_new (FALSE, 0);
++  WarningDetailsDlg_DrumLowThresholdValue_box2 = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
+   gtk_widget_show (WarningDetailsDlg_DrumLowThresholdValue_box2);
+   gtk_box_pack_start (GTK_BOX (vbox74), WarningDetailsDlg_DrumLowThresholdValue_box2, TRUE, TRUE, 0);
+ 
+@@ -4106,7 +4106,7 @@ create_WarningDetails_dialog (void)
+   gtk_misc_set_alignment (GTK_MISC (WarningDetailsDlg_DrumLowThresholdValue_label2), 0, 0.5);
+   gtk_misc_set_padding (GTK_MISC (WarningDetailsDlg_DrumLowThresholdValue_label2), 20, 0);
+ 
+-  WarningDetailsDlg_DrumLowThresholdValue_spin2_adj = gtk_adjustment_new (1, 1, 99, 1, 10, 0);
++  WarningDetailsDlg_DrumLowThresholdValue_spin2_adj = (GObject *)gtk_adjustment_new (1, 1, 99, 1, 10, 0);
+   WarningDetailsDlg_DrumLowThresholdValue_spin2 = gtk_spin_button_new (GTK_ADJUSTMENT (WarningDetailsDlg_DrumLowThresholdValue_spin2_adj), 1, 0);
+   gtk_widget_show (WarningDetailsDlg_DrumLowThresholdValue_spin2);
+   gtk_box_pack_start (GTK_BOX (WarningDetailsDlg_DrumLowThresholdValue_box2), WarningDetailsDlg_DrumLowThresholdValue_spin2, FALSE, FALSE, 0);
+@@ -4118,11 +4118,11 @@ create_WarningDetails_dialog (void)
+   gtk_label_set_justify (GTK_LABEL (label180), GTK_JUSTIFY_CENTER);
+   gtk_misc_set_padding (GTK_MISC (label180), 3, 0);
+ 
+-  hbuttonbox33 = GTK_DIALOG (WarningDetails_dialog)->action_area;
++  hbuttonbox33 = gtk_dialog_get_action_area (GTK_DIALOG (WarningDetails_dialog));
+   gtk_widget_show (hbuttonbox33);
+   gtk_button_box_set_layout (GTK_BUTTON_BOX (hbuttonbox33), GTK_BUTTONBOX_END);
+ 
+-  hbuttonbox34 = gtk_hbutton_box_new ();
++  hbuttonbox34 = gtk_button_box_new (GTK_ORIENTATION_HORIZONTAL);
+   gtk_widget_show (hbuttonbox34);
+   gtk_container_add (GTK_CONTAINER (hbuttonbox33), hbuttonbox34);
+   gtk_button_box_set_layout (GTK_BUTTON_BOX (hbuttonbox34), GTK_BUTTONBOX_END);
+@@ -4130,12 +4130,12 @@ create_WarningDetails_dialog (void)
+   button13 = gtk_button_new_with_mnemonic (_("OK"));
+   gtk_widget_show (button13);
+   gtk_container_add (GTK_CONTAINER (hbuttonbox34), button13);
+-  GTK_WIDGET_SET_FLAGS (button13, GTK_CAN_DEFAULT);
++  gtk_widget_set_can_default (button13, TRUE);
+ 
+   button14 = gtk_button_new_with_mnemonic (_("Cancel "));
+   gtk_widget_show (button14);
+   gtk_container_add (GTK_CONTAINER (hbuttonbox34), button14);
+-  GTK_WIDGET_SET_FLAGS (button14, GTK_CAN_DEFAULT);
++  gtk_widget_set_can_default (button14, TRUE);
+ 
+   g_signal_connect ((gpointer) WarningDetails_dialog, "delete_event",
+                     G_CALLBACK (on_WarningDetails_dialog_delete_event),
+@@ -4221,7 +4221,7 @@ create_ReportPrint_dialog (void)
+   gtk_window_set_resizable (GTK_WINDOW (ReportPrint_dialog), FALSE);
+   gtk_window_set_type_hint (GTK_WINDOW (ReportPrint_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
+ 
+-  vbox69 = GTK_DIALOG (ReportPrint_dialog)->vbox;
++  vbox69 = gtk_dialog_get_content_area (GTK_DIALOG (ReportPrint_dialog));
+   gtk_widget_show (vbox69);
+ 
+   frame73 = gtk_frame_new (NULL);
+@@ -4230,11 +4230,11 @@ create_ReportPrint_dialog (void)
+   gtk_container_set_border_width (GTK_CONTAINER (frame73), 5);
+   gtk_frame_set_shadow_type (GTK_FRAME (frame73), GTK_SHADOW_NONE);
+ 
+-  vbox70 = gtk_vbox_new (FALSE, 0);
++  vbox70 = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
+   gtk_widget_show (vbox70);
+   gtk_container_add (GTK_CONTAINER (frame73), vbox70);
+ 
+-  ReportPrintDlg_Language_box = gtk_hbox_new (FALSE, 0);
++  ReportPrintDlg_Language_box = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
+   gtk_widget_show (ReportPrintDlg_Language_box);
+   gtk_box_pack_start (GTK_BOX (vbox70), ReportPrintDlg_Language_box, TRUE, TRUE, 0);
+ 
+@@ -4245,15 +4245,15 @@ create_ReportPrint_dialog (void)
+   gtk_misc_set_alignment (GTK_MISC (ReportPrintDlg_Language_label), 0, 0.5);
+   gtk_misc_set_padding (GTK_MISC (ReportPrintDlg_Language_label), 3, 0);
+ 
+-  ReportPrintDlg_Language_combo = gtk_combo_box_new_text ();
++  ReportPrintDlg_Language_combo = gtk_combo_box_text_new ();
+   gtk_widget_show (ReportPrintDlg_Language_combo);
+   gtk_box_pack_start (GTK_BOX (ReportPrintDlg_Language_box), ReportPrintDlg_Language_combo, TRUE, TRUE, 0);
+ 
+-  hbuttonbox35 = GTK_DIALOG (ReportPrint_dialog)->action_area;
++  hbuttonbox35 = gtk_dialog_get_action_area (GTK_DIALOG (ReportPrint_dialog));
+   gtk_widget_show (hbuttonbox35);
+   gtk_button_box_set_layout (GTK_BUTTON_BOX (hbuttonbox35), GTK_BUTTONBOX_END);
+ 
+-  hbuttonbox36 = gtk_hbutton_box_new ();
++  hbuttonbox36 = gtk_button_box_new (GTK_ORIENTATION_HORIZONTAL);
+   gtk_widget_show (hbuttonbox36);
+   gtk_container_add (GTK_CONTAINER (hbuttonbox35), hbuttonbox36);
+   gtk_button_box_set_layout (GTK_BUTTON_BOX (hbuttonbox36), GTK_BUTTONBOX_END);
+@@ -4261,12 +4261,12 @@ create_ReportPrint_dialog (void)
+   button15 = gtk_button_new_with_mnemonic (_("OK"));
+   gtk_widget_show (button15);
+   gtk_container_add (GTK_CONTAINER (hbuttonbox36), button15);
+-  GTK_WIDGET_SET_FLAGS (button15, GTK_CAN_DEFAULT);
++  gtk_widget_set_can_default (button15, TRUE);
+ 
+   button16 = gtk_button_new_with_mnemonic (_("Cancel "));
+   gtk_widget_show (button16);
+   gtk_container_add (GTK_CONTAINER (hbuttonbox36), button16);
+-  GTK_WIDGET_SET_FLAGS (button16, GTK_CAN_DEFAULT);
++  gtk_widget_set_can_default (button16, TRUE);
+ 
+   g_signal_connect ((gpointer) ReportPrint_dialog, "delete_event",
+                     G_CALLBACK (on_ReportPrint_dialog_delete_event),
+@@ -4327,7 +4327,7 @@ create_PurchaseConsumables_scr_dialog (void)
+   gtk_window_set_resizable (GTK_WINDOW (PurchaseConsumables_scr_dialog), FALSE);
+   gtk_window_set_type_hint (GTK_WINDOW (PurchaseConsumables_scr_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
+ 
+-  pc_scr_dialog_vbox = GTK_DIALOG (PurchaseConsumables_scr_dialog)->vbox;
++  pc_scr_dialog_vbox = gtk_dialog_get_content_area (GTK_DIALOG (PurchaseConsumables_scr_dialog));
+   gtk_widget_show (pc_scr_dialog_vbox);
+ 
+   pc_scr_dialog_upper_frame = gtk_frame_new (NULL);
+@@ -4337,11 +4337,11 @@ create_PurchaseConsumables_scr_dialog (void)
+   gtk_container_set_border_width (GTK_CONTAINER (pc_scr_dialog_upper_frame), 5);
+   gtk_frame_set_shadow_type (GTK_FRAME (pc_scr_dialog_upper_frame), GTK_SHADOW_NONE);
+ 
+-  pc_scr_dialog_upper_vbox = gtk_vbox_new (FALSE, 0);
++  pc_scr_dialog_upper_vbox = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
+   gtk_widget_show (pc_scr_dialog_upper_vbox);
+   gtk_container_add (GTK_CONTAINER (pc_scr_dialog_upper_frame), pc_scr_dialog_upper_vbox);
+ 
+-  pc_scr_dialog_upper_hbox = gtk_hbox_new (FALSE, 0);
++  pc_scr_dialog_upper_hbox = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
+   gtk_widget_show (pc_scr_dialog_upper_hbox);
+   gtk_box_pack_start (GTK_BOX (pc_scr_dialog_upper_vbox), pc_scr_dialog_upper_hbox, TRUE, TRUE, 0);
+ 
+@@ -4351,15 +4351,15 @@ create_PurchaseConsumables_scr_dialog (void)
+   gtk_misc_set_alignment (GTK_MISC (pc_scr_dialog_label), 0, 0.5);
+   gtk_misc_set_padding (GTK_MISC (pc_scr_dialog_label), 3, 0);
+ 
+-  pc_scr_dialog_combobox = gtk_combo_box_new_text ();
++  pc_scr_dialog_combobox = gtk_combo_box_text_new ();
+   gtk_widget_show (pc_scr_dialog_combobox);
+   gtk_box_pack_start (GTK_BOX (pc_scr_dialog_upper_hbox), pc_scr_dialog_combobox, TRUE, TRUE, 0);
+ 
+-  pc_scr_dialog_lower_hbuttonbox = GTK_DIALOG (PurchaseConsumables_scr_dialog)->action_area;
++  pc_scr_dialog_lower_hbuttonbox = gtk_dialog_get_action_area (GTK_DIALOG (PurchaseConsumables_scr_dialog));
+   gtk_widget_show (pc_scr_dialog_lower_hbuttonbox);
+   gtk_button_box_set_layout (GTK_BUTTON_BOX (pc_scr_dialog_lower_hbuttonbox), GTK_BUTTONBOX_END);
+ 
+-  pc_scr_dialog_lower_h2buttonbox = gtk_hbutton_box_new ();
++  pc_scr_dialog_lower_h2buttonbox = gtk_button_box_new (GTK_ORIENTATION_HORIZONTAL);
+   gtk_widget_show (pc_scr_dialog_lower_h2buttonbox);
+   gtk_container_add (GTK_CONTAINER (pc_scr_dialog_lower_hbuttonbox), pc_scr_dialog_lower_h2buttonbox);
+   gtk_button_box_set_layout (GTK_BUTTON_BOX (pc_scr_dialog_lower_h2buttonbox), GTK_BUTTONBOX_END);
+@@ -4372,7 +4372,7 @@ create_PurchaseConsumables_scr_dialog (void)
+   pc_scr_dialog_cancel_button = gtk_button_new_with_mnemonic (_("Cancel "));
+   gtk_widget_show (pc_scr_dialog_cancel_button);
+   gtk_container_add (GTK_CONTAINER (pc_scr_dialog_lower_h2buttonbox), pc_scr_dialog_cancel_button);
+-  GTK_WIDGET_SET_FLAGS (pc_scr_dialog_cancel_button, GTK_CAN_DEFAULT);
++  gtk_widget_set_can_default (pc_scr_dialog_cancel_button, TRUE);
+ 
+   g_signal_connect ((gpointer) PurchaseConsumables_scr_dialog, "delete_event",
+                     G_CALLBACK (on_pc_scr_dialog_delete_event),
+diff --git a/cnrdrvcups-sfp-5.00/StatusMonitor/src/main.c b/cnrdrvcups-sfp-5.00/StatusMonitor/src/main.c
+index 1fe3e8c..378f73a 100644
+--- a/cnrdrvcups-sfp-5.00/StatusMonitor/src/main.c
++++ b/cnrdrvcups-sfp-5.00/StatusMonitor/src/main.c
+@@ -93,12 +93,12 @@ int StartProcess(mode)
+ 		ret = pthread_create(&StatusThread, NULL, threadStatus, (void*)g_status_window);
+ 		if( ret == 0 )
+ 		{
+-			PollingFlag = gtk_timeout_add(POLLING_COUNT, (GtkFunction)pollingGetStatus, NULL);
++			PollingFlag = g_timeout_add(POLLING_COUNT, (GSourceFunc)pollingGetStatus, NULL);
+ 
+ 			gtk_main ();
+ 			if( PollingFlag != 0u )
+ 			{
+-				gtk_timeout_remove(PollingFlag);
++				g_source_remove(PollingFlag);
+ 			}
+ 			g_status_window->pauseGetStatus = TRUE;
+ 			g_status_window->bPoollingStop = TRUE;
+@@ -124,7 +124,7 @@ main (int argc, char *argv[])
+ #endif
+ 	textdomain(PACKAGE);
+ #endif
+-	gtk_set_locale ();
++	setlocale (LC_ALL, "");
+ 	gtk_init (&argc, &argv);
+ 
+ 	add_pixmap_directory (PACKAGE_DATA_DIR "/pixmaps");
+diff --git a/cnrdrvcups-sfp-5.00/StatusMonitor/src/msgdlg.c b/cnrdrvcups-sfp-5.00/StatusMonitor/src/msgdlg.c
+index 348a795..a7c6857 100644
+--- a/cnrdrvcups-sfp-5.00/StatusMonitor/src/msgdlg.c
++++ b/cnrdrvcups-sfp-5.00/StatusMonitor/src/msgdlg.c
+@@ -242,8 +242,8 @@ void UpdateMsgDlgWidgets(UIStatusWnd *wnd, int type)
+ 
+ 	while(msg_table[i].type != -1){
+ 		if(type == msg_table[i].type){
+-			GtkObject *pObject = GTK_OBJECT(window);
+-			GtkSignalFunc deleteEventFunc = GTK_SIGNAL_FUNC(on_Msg_dialog_delete_event);
++			GObject *pObject = G_OBJECT(window);
++			GCallback deleteEventFunc = G_CALLBACK(on_Msg_dialog_delete_event);
+ 
+ 			const char *title = msg_table[i].title;
+ 			const char *message = msg_table[i].message;
+@@ -298,10 +298,10 @@ void UpdateMsgDlgWidgets(UIStatusWnd *wnd, int type)
+ 				}
+ 				if(pObject != NULL)
+ 				{
+-					gtk_signal_connect( pObject, "show",
+-				    	                GTK_SIGNAL_FUNC( on_Msg_USBRetry_dialog_show ), NULL);
++					g_signal_connect( pObject, "show",
++				    	                G_CALLBACK( on_Msg_USBRetry_dialog_show ), NULL);
+ 				}
+-				deleteEventFunc = GTK_SIGNAL_FUNC(on_Msg_dialog_delete_event_btn_none);
++				deleteEventFunc = G_CALLBACK(on_Msg_dialog_delete_event_btn_none);
+ 				break;
+ 			case BTN_TYPE_OK:
+ 				HideWidget(window, "MsgDlg_Cancel_button");
+@@ -312,7 +312,7 @@ void UpdateMsgDlgWidgets(UIStatusWnd *wnd, int type)
+ 			}
+ 			if(pObject != NULL)
+ 			{
+-				gtk_signal_connect( pObject, "delete_event", deleteEventFunc, NULL);
++				g_signal_connect( pObject, "delete_event", deleteEventFunc, NULL);
+ 			}
+ 			wnd->msg_dlg->type = type;
+ 			wnd->msg_dlg->messageType = messageType;
+diff --git a/cnrdrvcups-sfp-5.00/StatusMonitor/src/support.c b/cnrdrvcups-sfp-5.00/StatusMonitor/src/support.c
+index e815175..b42b95e 100644
+--- a/cnrdrvcups-sfp-5.00/StatusMonitor/src/support.c
++++ b/cnrdrvcups-sfp-5.00/StatusMonitor/src/support.c
+@@ -53,7 +53,7 @@ lookup_widget                          (GtkWidget       *widget,
+       if (GTK_IS_MENU (widget))
+         parent = gtk_menu_get_attach_widget (GTK_MENU (widget));
+       else
+-        parent = widget->parent;
++        parent = gtk_widget_get_parent (widget);
+       if (!parent)
+         parent = (GtkWidget*) g_object_get_data (G_OBJECT (widget), "GladeParentKey");
+       if (parent == NULL)
+diff --git a/cnrdrvcups-sfp-5.00/StatusMonitor/src/widgets.c b/cnrdrvcups-sfp-5.00/StatusMonitor/src/widgets.c
+index d157732..cbfef58 100644
+--- a/cnrdrvcups-sfp-5.00/StatusMonitor/src/widgets.c
++++ b/cnrdrvcups-sfp-5.00/StatusMonitor/src/widgets.c
+@@ -1245,7 +1245,7 @@ gint GetSpinButtonValue(GtkWidget *window, const gchar *spinbutton_name, int val
+ 	spin = getWidget(window, spinbutton_name);
+ 
+ 	if(value)
+-		return (gtk_spin_button_get_value_as_float(GTK_SPIN_BUTTON(spin)) * value);
++		return (gtk_spin_button_get_value(GTK_SPIN_BUTTON(spin)) * value);
+ 	else
+ 		return gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(spin));
+ }

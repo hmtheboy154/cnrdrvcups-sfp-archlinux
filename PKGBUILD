@@ -10,17 +10,17 @@ pkgname='cnrdrvcups-sfp'
 _pkgver='5.00';  _dl='0/0100005950/10'
 
 pkgver="${_pkgver}"
-pkgrel='4'
+pkgrel='5'
 pkgdesc='Canon UFRII LT Printer Driver for Linux (LBP112/912, LBP113/913, LBP151dw, LBP6030/LBP6040/LBP6018L, LBP6230/LBP6240, LBP7100C/LBP7110C, LBP8100)'
 arch=('x86_64')
 # Direct links to the download reference go bad on the next version. We want something that will persist for a while.
 url='https://www.canon-europe.com'
 license=('GPL2' 'MIT' 'custom')
 # parts of the code are GPL or MIT licensed, some parts have a custom license
-makedepends=('jbigkit' 'gzip' 'gtk2')
+makedepends=('jbigkit' 'gzip' 'gtk3')
 depends=('gcc-libs' 'libxml2-legacy' 'hicolor-icon-theme')
 optdepends=('libjpeg6-turbo: improves printing results for color i-SENSYS LBP devices'
-                        'gtk2: for cnsetuputil2')
+                        'gtk2: for cnsetuputil2l')
 
 
 conflicts=('cndrvcups-lb' 'cndrvcups-common-lb')
@@ -28,11 +28,17 @@ options=('!emptydirs' '!strip' '!libtool')
 
 source=(  "http://gdlp01.c-wss.com/gds/${_dl}/linux-UFRIILT-drv-v${_pkgver//\./}-uken-18.tar.gz"
                 replace_incorrect_int_with_char.patch
+                StatusMonitor_GTK3_port.patch
+                cngplp_GTK3_port.patch
 )
 md5sums=('8bc3a4e3c372bb4d1b9af2cc012c720b'
-         '8bc26ff46bf5877b5800b77685d5d917')
+         '8bc26ff46bf5877b5800b77685d5d917'
+         '4b9cdbfcb593ed8f422da8cb3957c8fd'
+         '79c5b40f19f995bf7d540a91c17d66c1')
 sha512sums=('e7b964f3d4541e1ec9ba07eac17559233ab2db16d1f025ffd8a46a65297c63205b7a3cdc031d95f04d719e97eaf93fd763bdc6c27f12c5aac346bb4f204d5967'
-            '1d118eeee1ce069b59db00cba5b534986ccbd1da3a9c4a4ba6892be4a478c2dac4bd83dae1b2dd28f0e58a145609c60940cd661fee87d025a12f856e161b1f65')
+            '1d118eeee1ce069b59db00cba5b534986ccbd1da3a9c4a4ba6892be4a478c2dac4bd83dae1b2dd28f0e58a145609c60940cd661fee87d025a12f856e161b1f65'
+            '645fad1205735f059f63a5e7dd4bfe01dc4098ccb3437d85f8fe527f58e8014937178ee81d158a23001eb0e066b62a6e5b57cade48afdb71437cd4986ea5fbef'
+            'e3e2e91b7e4266b887f81e7eff0693608f0b2cb2e00016ea9e4409229391114af9472fefde43443c1368a3b4f82db9a07840936260b026151f498cfcff327846')
 
 # Canon provides the sourcecode in a tarball within the dowload and we need to extract the code manually
 # In order to keep the $srcdir structure tidy we put the extracted files in "extracted-${pkgname}-${_pkgver}" aka _srcdir
@@ -63,14 +69,14 @@ prepare() {
 
     local _specs=(cnrdrvcups-ncap.spec)
 
-    # cngplp/autogen.sh fails to find several libraries.
-    # adding these in the right place of the soon to be generated make script is hard,
-    # so we patch it directly into that autogen.sh
-    sed -e '2a export LIBS="-lgtk-x11-2.0 -lgobject-2.0 -lglib-2.0 -lgmodule-2.0"' -i "cnrdrvcups-common-${_pkgver}/cngplp/autogen.sh"
-    sed -e '2a export LIBS="-latk-1.0 -lgobject-2.0 -lglib-2.0 -lgdk_pixbuf-2.0 -lcups"' -i "cnrdrvcups-sfp-${_pkgver}/StatusMonitor/autogen.sh"
-
     # fix execjob.c:1154:108: error: passing argument 3 of 'add_param_int' makes integer from pointer without a cast
     patch --directory="${srcdir}"/$_srcdir/$_driver_dir/cngplp/cngplpmod/ --forward --input="$srcdir"/replace_incorrect_int_with_char.patch
+
+    # Patch StatusMonitor to use GTK3
+    patch --directory="${srcdir}"/$_srcdir -p1 --forward --input="$srcdir"/StatusMonitor_GTK3_port.patch
+
+    # Patch cngplp2l to use GTK3
+    patch --directory="${srcdir}"/$_srcdir -p1 --forward --input="$srcdir"/cngplp_GTK3_port.patch
 
     # the autogen.sh files from canon target an old automake/autoconf version
     # autoreconf converts them to a form compatible with archlinux autoconf/automake
