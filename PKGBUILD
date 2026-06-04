@@ -18,7 +18,7 @@ url='https://www.canon-europe.com'
 license=('GPL2' 'MIT' 'custom')
 # parts of the code are GPL or MIT licensed, some parts have a custom license
 makedepends=('jbigkit' 'gzip' 'gtk2')
-depends=('gcc-libs' 'libxml2-legacy' 'libglade')
+depends=('gcc-libs' 'libxml2-legacy' 'hicolor-icon-theme')
 optdepends=('libjpeg6-turbo: improves printing results for color i-SENSYS LBP devices'
                         'gtk2: for cnsetuputil2')
 
@@ -170,6 +170,11 @@ package() {
     env "${_vars[@]}" \
     RPM_BUILD_ROOT="${pkgdir}" \
     sh 'make.install.Arch'
+
+    # copy icons
+    install -Dpm644 "cnrdrvcups-utility-${_pkgver}"/data/cnsetuputil.png "${pkgdir}"/usr/share/icons/hicolor/128x128/apps/cnsetuputil.png
+    # copy .desktop files
+    install -Dpm644 "cnrdrvcups-utility-${_pkgver}"/data/cnsetuputil2l.desktop "${pkgdir}"/usr/share/applications/cnsetuputil2l.desktop
 
     # licensing information is spread over multiple files and folders
     pushd "${_common_dir}"
