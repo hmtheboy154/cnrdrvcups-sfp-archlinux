@@ -17,11 +17,16 @@ arch=('x86_64' 'aarch64')
 url='https://www.canon-europe.com'
 license=('GPL2' 'MIT' 'custom')
 # parts of the code are GPL or MIT licensed, some parts have a custom license
-makedepends=('jbigkit' 'gzip' 'gtk3')
-depends=('gcc-libs' 'libxml2-legacy' 'hicolor-icon-theme')
-optdepends=('libjpeg6-turbo: improves printing results for color i-SENSYS LBP devices'
-                        'gtk2: for cnsetuputil2l')
+makedepends=(jbigkit gzip libxml2)
+depends=(libcups glibc libstdc++ glib2 hicolor-icon-theme libjpeg6-turbo gtk3)
+optdepends=('jbigkit: solves some cpu hangs'
+            'ghostscript: necessary for printing on some devices'
+            'at-spi2-core: for cnsetuputil2l'
+            'gdk-pixbuf2: for cnsetuputil2l'
+            'cairo: for cnsetuputil2l'
+            'pango: for cnsetuputil2l'
 
+)
 
 conflicts=('cndrvcups-lb' 'cndrvcups-common-lb')
 options=('!emptydirs' '!strip' '!libtool' '!lto')
@@ -40,13 +45,9 @@ sha512sums=('4e00e2183d872a46f2da3c5b6cfb0fc24adb84266bfa9c03d939ee836a66e663898
 # "cnrdrvcups-common-${_pkgver}" aka _common_dir & "cnrdrvcups-sfp-${_pkgver}" aka _driver_dir
 # are used to keep this manageable
 
-
 _srcdir="extracted-${pkgname}-${_pkgver}"
 _common_dir="cnrdrvcups-common-${_pkgver}"
 _driver_dir="cnrdrvcups-sfp-${_pkgver}"
-
-
-
 
 prepare() {
 
